@@ -30,17 +30,22 @@
      │  3) Beom_stand.png ─ [3] 추리 파트 왼쪽 하단 스탠딩                            │
      │     · 권장   : 세로형 900x1400 내외(전신), 배경 투명 PNG 권장                   │
      │                                                                          │
-     │  4) 추후 캐릭터 페이지용 (지금은 자리만 잡아둠, 안내 오시면 연결합니다)         │
-     │     · Eliza_stand.png … (스탠딩)  / Eliza_id.png … (증명사진, 정사각 1:1)    │
+     │  4) 캐릭터 도씨에 (스탠딩 + 증명사진)                                        │
+     │     · 스탠딩 : <Name>_stand.png  (세로 전신, 투명 PNG 권장)                   │
+     │       Eliza_stand / Hannah_stand / Zhenya_stand / Beom_stand / Claude_stand │
+     │       Wilhelmina_stand / Frederica_stand / Beatrice_stand                   │
+     │     · 증명사진 : <Name>_id.png   (정사각 1:1)                                 │
+     │       Eliza_id / Hannah_id / Zhenya_id / Beom_id / Claude_id                │
+     │       Wilhelmina_id / Frederica_id / Beatrice_id                            │
      │                                                                          │
-     │  ※ 파일명은 하단 JSON의 "cast" / "scenes" / "case" 항목만 고치면 반영됩니다.   │
+     │  ※ 파일명은 하단 JSON의 cast / scenes / case / dossier 항목만 고치면 반영.    │
      │  ※ 이미지가 아직 없으면 화면에 "IMAGE PENDING" 도면 카드가 대신 표시됩니다.    │
      └──────────────────────────────────────────────────────────────────────────┘
 
      이미 저장소에 있는 에셋 : logo.png / norwelich.png / norwelich_map.png /
        northern_isles.png / eastern_federation.png / western_republics.png /
        ruined_city.png / border_city.png / cinder_unit.png / Norwelich.mp3
-       (district_seven.png → [3] 추리 배경 / kelchita.png → [4] 캐릭터 배경)
+       (district_seven.png → [3] 추리 배경 / kelchita.png → [4] 도씨에 배경)
 ============================================================================= -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -967,44 +972,269 @@ body::before{
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   06b. [4] DOSSIER 자리 (캐릭터 소개 — 다음 안내에 맞춰 채웁니다)
+   06b. [4] DOSSIER ─ 인물 기록 보관소
    ══════════════════════════════════════════════════════════════════════════ */
-.stub{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:28px; }
-.stub-bg{ position:absolute; inset:0; }
-.stub-bg img{ width:100%; height:100%; object-fit:cover; opacity:.20; filter:grayscale(.5) contrast(1.1); }
-.stub-bg::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(4,5,7,.82), rgba(4,5,7,.94)); }
-.dossier{
-  position:relative; width:min(100%,360px);
-  padding:26px 22px 24px; text-align:center;
-  background:linear-gradient(180deg, rgba(22,26,32,.94), rgba(8,10,13,.96));
+.dos-bg{ position:absolute; inset:0; }
+.dos-bg img{ width:100%; height:100%; object-fit:cover; opacity:.18; filter:grayscale(.55) contrast(1.1) brightness(.55); }
+.dos-bg::after{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(80% 50% at 50% 0%, rgba(200,167,92,.08), transparent 55%),
+    linear-gradient(180deg, rgba(6,7,10,.82), rgba(6,7,10,.94));
+}
+
+.dos-shell{
+  position:absolute; inset:0; z-index:10;
+  display:flex; flex-direction:column;
+  padding:calc(env(safe-area-inset-top) + 10px) 3.5% calc(env(safe-area-inset-bottom) + 10px);
+  gap:8px;
+}
+
+/* 상단 헤더 */
+.dos-head{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px;
+  background:linear-gradient(180deg, rgba(28,32,38,.96), rgba(10,12,15,.96));
+  border:1px solid rgba(200,167,92,.42);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+  flex:none;
+}
+.dos-head .sig{ width:18px; height:18px; color:var(--gold); flex:none; }
+.dos-head .ttl{
+  font-family:var(--f-mono); font-size:9.5px; letter-spacing:.28em;
+  color:var(--gold-pale);
+}
+.dos-head .ttl b{ font-weight:400; color:rgba(212,203,186,.45); }
+.dos-head .cls{
+  margin-left:auto;
+  font-family:var(--f-mono); font-size:8.5px; letter-spacing:.2em;
+  color:rgba(143,63,63,.9); border:1px solid rgba(143,63,63,.55);
+  padding:3px 7px;
+}
+
+/* 진영 탭 */
+.dos-tabs{
+  display:grid; grid-template-columns:1fr 1fr; gap:6px; flex:none;
+}
+.dos-tab{
+  position:relative; padding:9px 8px 8px;
+  font-family:var(--f-ui); font-weight:500; font-size:11px; letter-spacing:.18em;
+  color:rgba(212,203,186,.45);
+  background:linear-gradient(180deg, rgba(20,24,29,.9), rgba(8,10,13,.95));
+  border:1px solid rgba(200,167,92,.22);
+  transition:color .25s, border-color .25s, box-shadow .25s;
+}
+.dos-tab.is-on{
+  color:var(--gold-pale);
+  border-color:rgba(200,167,92,.65);
+  box-shadow:inset 0 0 0 1px rgba(200,167,92,.15), 0 0 18px rgba(200,167,92,.12);
+}
+.dos-tab .sub{
+  display:block; margin-top:2px;
+  font-family:var(--f-mono); font-size:8px; letter-spacing:.16em;
+  color:rgba(212,203,186,.32); font-weight:400;
+}
+.dos-tab.is-on .sub{ color:rgba(200,167,92,.55); }
+.dos-tab::before{
+  content:""; position:absolute; left:0; top:6px; bottom:6px; width:2px;
+  background:linear-gradient(180deg, var(--red), var(--blue));
+  opacity:0; transition:opacity .25s;
+}
+.dos-tab.is-on::before{ opacity:1; }
+
+/* 인물 칩 스크롤 */
+.dos-chips{
+  display:flex; gap:6px; overflow-x:auto; overflow-y:hidden;
+  padding:2px 1px 6px; flex:none;
+  -webkit-overflow-scrolling:touch; scrollbar-width:none;
+}
+.dos-chips::-webkit-scrollbar{ display:none; }
+.dos-chip{
+  flex:none; padding:7px 12px 6px;
+  font-family:var(--f-ui); font-weight:400; font-size:11px; letter-spacing:.12em;
+  color:rgba(212,203,186,.5);
+  border:1px solid rgba(200,167,92,.22);
+  background:rgba(10,12,15,.75);
+  white-space:nowrap;
+  transition:color .2s, border-color .2s, background .2s;
+}
+.dos-chip.is-on{
+  color:var(--gold-pale);
+  border-color:rgba(200,167,92,.7);
+  background:linear-gradient(180deg, rgba(40,34,22,.85), rgba(14,12,8,.95));
+  box-shadow:0 0 14px rgba(200,167,92,.18);
+}
+
+/* 파일 본체 */
+.dos-file{
+  position:relative; flex:1; min-height:0;
+  display:flex; flex-direction:column; gap:0;
+  background:
+    linear-gradient(180deg, rgba(22,26,32,.96), rgba(8,10,13,.98)),
+    repeating-linear-gradient(100deg, rgba(255,255,255,.02) 0 2px, transparent 2px 5px);
   border:1px solid rgba(200,167,92,.4);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 22px 60px rgba(0,0,0,.8);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 16px 40px rgba(0,0,0,.55);
+  overflow:hidden;
 }
-.dossier .tb-rivet{ opacity:.9 }
-.dossier h2{
+.dos-file::before{
+  content:""; position:absolute; left:0; top:10px; bottom:10px; width:3px;
+  background:linear-gradient(180deg, var(--red) 0 48%, var(--blue) 52% 100%);
+  z-index:2;
+}
+.dos-rivet{
+  position:absolute; width:5px; height:5px; border-radius:50%; z-index:3;
+  background:radial-gradient(circle at 32% 30%, #cfc7b6, #4a4740 60%, #17181a);
+}
+.dos-rivet.tl{ left:7px; top:7px } .dos-rivet.tr{ right:7px; top:7px }
+.dos-rivet.bl{ left:7px; bottom:7px } .dos-rivet.br{ right:7px; bottom:7px }
+
+.dos-scroll{
+  flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;
+  padding:14px 14px 16px 16px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* 상단: 증명사진 + 신원 */
+.dos-idrow{
+  display:grid; grid-template-columns:86px 1fr; gap:12px;
+  align-items:start; margin-bottom:12px;
+}
+.dos-id{
+  position:relative; aspect-ratio:1; width:100%;
+  background:#0a0c10; border:1px solid rgba(200,167,92,.35);
+  overflow:hidden;
+}
+.dos-id img{ width:100%; height:100%; object-fit:cover; }
+.dos-id .pending{
+  width:100%; height:100%; aspect-ratio:auto; border:0; box-shadow:none;
+  padding:8px; gap:4px;
+}
+.dos-id .pending b{ font-size:7.5px; }
+.dos-id .pending code{ font-size:8.5px; border:0; }
+.dos-id .pending small{ display:none; }
+.dos-id .stamp-corner{
+  position:absolute; right:4px; bottom:4px;
+  font-family:var(--f-mono); font-size:7px; letter-spacing:.12em;
+  color:rgba(143,63,63,.85); border:1px solid rgba(143,63,63,.5);
+  padding:1px 4px; background:rgba(0,0,0,.45);
+}
+
+.dos-meta .file-no{
+  font-family:var(--f-mono); font-size:8.5px; letter-spacing:.22em;
+  color:rgba(200,167,92,.55); margin-bottom:4px;
+}
+.dos-meta .name-en{
   font-family:var(--f-display); font-weight:700;
-  font-size:clamp(17px,5.2vw,22px); letter-spacing:.16em;
-  color:var(--gold-pale); text-shadow:0 0 18px rgba(200,167,92,.45);
+  font-size:clamp(15px,4.4vw,18px); letter-spacing:.06em;
+  color:var(--gold-pale); line-height:1.2;
+  text-shadow:0 0 14px rgba(200,167,92,.3);
 }
-.dossier .kicker{
-  font-family:var(--f-mono); font-size:9.5px; letter-spacing:.34em;
-  color:rgba(200,167,92,.6); margin-bottom:10px;
+.dos-meta .name-ko{
+  margin-top:2px; font-family:var(--f-body); font-size:12px;
+  color:rgba(212,203,186,.55); letter-spacing:.04em;
 }
-.dossier p{
-  margin-top:14px; font-size:13px; line-height:1.95; color:rgba(212,203,186,.66);
+.dos-meta .role{
+  margin-top:8px; font-family:var(--f-ui); font-weight:400;
+  font-size:11px; letter-spacing:.08em; color:rgba(231,216,172,.78);
+  line-height:1.45; word-break:keep-all;
+}
+.dos-stats{
+  display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px;
+}
+.dos-stats .st{
+  font-family:var(--f-mono); font-size:9.5px; letter-spacing:.14em;
+  color:rgba(212,203,186,.55);
+}
+.dos-stats .st em{
+  font-style:normal; color:var(--gold-pale); margin-left:5px;
+}
+
+/* 스탠딩 */
+.dos-stand{
+  position:relative; margin:4px 0 12px;
+  height:clamp(160px, 28vh, 240px);
+  background:
+    radial-gradient(60% 80% at 50% 100%, rgba(200,167,92,.10), transparent 70%),
+    linear-gradient(180deg, rgba(12,14,18,.4), rgba(6,7,10,.85));
+  border:1px solid rgba(200,167,92,.22);
+  display:flex; align-items:flex-end; justify-content:center;
+  overflow:hidden;
+}
+.dos-stand img{
+  height:100%; width:auto; max-width:100%; object-fit:contain; object-position:bottom center;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.7));
+}
+.dos-stand .pending{
+  width:42%; aspect-ratio:3/4; margin-bottom:6%;
+  padding:10px 6px; gap:5px;
+}
+.dos-stand .pending b{ font-size:8px; }
+.dos-stand .pending code{ font-size:9px; }
+.dos-stand .pending small{ display:none; }
+.dos-stand .cap{
+  position:absolute; left:8px; top:6px;
+  font-family:var(--f-mono); font-size:8px; letter-spacing:.22em;
+  color:rgba(200,167,92,.45);
+}
+
+/* 관측 기록 */
+.dos-sec{
+  margin-top:2px; padding-top:10px;
+  border-top:1px solid rgba(200,167,92,.18);
+}
+.dos-sec .lab{
+  font-family:var(--f-mono); font-size:8.5px; letter-spacing:.28em;
+  color:rgba(200,167,92,.55); margin-bottom:8px;
+}
+.dos-sec ul{ list-style:none; display:flex; flex-direction:column; gap:7px; }
+.dos-sec li{
+  position:relative; padding-left:12px;
+  font-family:var(--f-body); font-size:12.5px; line-height:1.7;
+  color:rgba(232,226,212,.82); word-break:keep-all;
+}
+.dos-sec li::before{
+  content:""; position:absolute; left:0; top:.65em;
+  width:5px; height:1px; background:var(--gold);
+}
+.dos-sec li.redacted{
+  color:rgba(212,203,186,.35);
+  letter-spacing:.04em;
+}
+.dos-censor{
+  display:inline-block; vertical-align:middle;
+  height:.95em; min-width:4.5em; margin:0 2px -1px;
+  background:
+    repeating-linear-gradient(-12deg, #1a1a1a 0 2px, #0a0a0a 2px 4px),
+    #111;
+  box-shadow:inset 0 0 0 1px rgba(143,63,63,.35);
+  position:relative;
+}
+.dos-censor::after{
+  content:"█"; position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; color:rgba(143,63,63,.5); letter-spacing:0;
+}
+
+.dos-quote{
+  margin-top:12px; padding:10px 12px;
+  border-left:2px solid rgba(200,167,92,.45);
+  background:rgba(0,0,0,.28);
+}
+.dos-quote .q-de{
+  font-family:var(--f-body); font-style:italic; font-size:12px;
+  line-height:1.65; color:rgba(231,216,172,.7); word-break:keep-all;
+}
+.dos-quote .q-ko{
+  margin-top:6px; font-family:var(--f-mono); font-size:9.5px;
+  letter-spacing:.04em; color:rgba(212,203,186,.4); line-height:1.55;
   word-break:keep-all;
 }
-.stamp{
-  display:inline-block; margin-top:20px; padding:7px 14px;
-  font-family:var(--f-ui); font-weight:500; font-size:11px; letter-spacing:.24em;
-  color:rgba(143,63,63,.95); border:2px solid rgba(143,63,63,.8);
-  transform:rotate(-6deg); opacity:.9;
-  box-shadow:0 0 18px rgba(143,63,63,.25);
+
+.dos-foot{
+  flex:none; display:flex; align-items:center; justify-content:space-between;
+  gap:8px; padding-top:2px;
 }
-.stub-back{
-  position:absolute; left:50%; bottom:calc(env(safe-area-inset-bottom) + 22px);
-  transform:translateX(-50%);
-}
+.dos-foot .hud-btn{ font-size:9px; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    07. 접근성 / 저사양 배려
@@ -1524,23 +1754,51 @@ body::before{
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════════════
-       [4] DOSSIER ─ 캐릭터 소개 (다음 지시에 맞춰 이 섹션을 채웁니다)
-       필요 에셋 : <캐릭터명>_stand.png (스탠딩) / <캐릭터명>_id.png (증명사진 1:1)
+       [4] DOSSIER ─ 인물 기록 보관소
+       스탠딩: <Name>_stand.png / 증명사진: <Name>_id.png
        ══════════════════════════════════════════════════════════════════════ -->
   <section class="act" id="act-dossier" aria-label="인물 기록">
-    <div class="stub-bg"><img data-lazy="kelchita.png" alt=""></div>
-    <div class="stub">
-      <div class="dossier">
-        <span class="tb-rivet tl"></span><span class="tb-rivet tr"></span>
-        <span class="tb-rivet bl"></span><span class="tb-rivet br"></span>
-        <p class="kicker">PERSONNEL — CINDER UNIT</p>
-        <h2>FIVE OF ASHES</h2>
-        <p>ELIZA · HANNAH · ZHENYA · BEOM · CLAUDE<br>다섯 명분의 서류가 아직 도착하지 않았다.</p>
-        <span class="stamp">FILES PENDING</span>
+    <div class="dos-bg">
+      <img data-lazy="kelchita.png" alt="">
+      <div class="tex tex-plate"></div>
+      <div class="tex tex-rust"></div>
+    </div>
+
+    <div class="dos-shell">
+      <header class="dos-head">
+        <svg class="sig" viewBox="0 0 100 100" aria-hidden="true"><use href="#sigil"/></svg>
+        <div class="ttl">PERSONNEL ARCHIVE <b>/ NW-FILE</b></div>
+        <span class="cls">CLASSIFIED</span>
+      </header>
+
+      <div class="dos-tabs" role="tablist">
+        <button class="dos-tab is-on" type="button" data-faction="cinder" role="tab" aria-selected="true">
+          CINDER UNIT<span class="sub">灰團 · ALLIED</span>
+        </button>
+        <button class="dos-tab" type="button" data-faction="norwelich" role="tab" aria-selected="false">
+          NORWELICH<span class="sub">墺國 · HOSTILE</span>
+        </button>
+      </div>
+
+      <div class="dos-chips" id="dosChips" role="tablist" aria-label="인물 목록"></div>
+
+      <article class="dos-file" id="dosFile">
+        <span class="dos-rivet tl"></span><span class="dos-rivet tr"></span>
+        <span class="dos-rivet bl"></span><span class="dos-rivet br"></span>
+        <div class="dos-scroll" id="dosScroll">
+          <!-- JS가 채움 -->
+        </div>
+      </article>
+
+      <div class="dos-foot">
+        <button class="hud-btn" type="button" id="dosBack" data-goto="case">◂ CASE</button>
+        <button class="hud-btn" type="button" id="dosNext">NEXT FILE ▸</button>
       </div>
     </div>
-    <button class="hud-btn stub-back" type="button" data-goto="case">◂ CASE FILE</button>
-    <div class="tex tex-scan"></div><div class="tex tex-vig"></div><div class="tex tex-grain"></div>
+
+    <div class="tex tex-scan"></div>
+    <div class="tex tex-vig"></div>
+    <div class="tex tex-grain"></div>
   </section>
 
 </main>
@@ -1606,6 +1864,229 @@ body::before{
       }
     ],
     "alarmText": "Eindringling Alarm! Eindringling Alarm!"
+  },
+  "dossier": {
+    "factions": [
+      {
+        "id": "cinder",
+        "label": "CINDER UNIT",
+        "files": [
+          {
+            "id": "eliza",
+            "fileNo": "CU-01",
+            "name": "Eliza Cole",
+            "nameKo": "엘라이자 콜",
+            "age": 38,
+            "height": "161 cm",
+            "role": "신더 유닛 총지휘관",
+            "idImg": "Eliza_id.png",
+            "standImg": "Eliza_stand.png",
+            "observed": [
+              "노르벨릭 중앙전술군단 대위 출신으로 확인됨.",
+              "제국군 전술교범에 정통하다는 평가가 다수 수집됨.",
+              "작전 중 보급선 절단을 우선하는 지휘 패턴이 관측됨."
+            ],
+            "marks": [
+              "벽안. 흑발 로우테일.",
+              "정지한 은색 손목시계를 패용. 수선 흔적 없음.",
+              "전신에 걸쳐 전투 흉터."
+            ],
+            "redacted": [],
+            "quote": {
+              "de": "Es ist erlaubt, während einer Operation zu sterben. Aber ich kann es nicht tolerieren, wenn jemand außerhalb meiner Strategie stirbt.",
+              "ko": "작전 중 죽는 건 허용한다. 하나 내 전략 밖에서 죽는 건 용납 못 해."
+            }
+          },
+          {
+            "id": "hannah",
+            "fileNo": "CU-02",
+            "name": "Hannah Krüger",
+            "nameKo": "한나 크루거",
+            "age": 30,
+            "height": "158 cm",
+            "role": "첩보원 · 암살 담당",
+            "idImg": "Hannah_id.png",
+            "standImg": "Hannah_stand.png",
+            "observed": [
+              "서부공화국 외교관 경력이 확인됨.",
+              "독·영·러·불 및 주요 방언을 운용한다는 보고.",
+              "대화 중 상대의 후두를 주시하는 습관이 기록됨."
+            ],
+            "marks": [
+              "회안. 백발 장발.",
+              "손톱이 출혈할 정도로 깨진 상태의 사진이 다수.",
+              "손가락에 흉터."
+            ],
+            "redacted": [],
+            "quote": {
+              "de": "Lächeln ist kostenlos. Man muss für das Lachen bezahlen.",
+              "ko": "미소는 공짜예요. 웃음소리부터는 값을 치르시죠."
+            }
+          },
+          {
+            "id": "zhenya",
+            "fileNo": "CU-03",
+            "name": "Zhenya Zemin-Tytova",
+            "nameKo": "제냐 지민-티토바",
+            "age": 21,
+            "height": "168 cm",
+            "role": "폭탄 공병",
+            "idImg": "Zhenya_id.png",
+            "standImg": "Zhenya_stand.png",
+            "observed": [
+              "동부연맹 숙청 생존자로 분류됨.",
+              "주변 자재로 간이 폭발물을 구성하는 능력이 확인됨.",
+              "건축 구조 분석 후 최소 자원으로 붕괴를 유도한다는 보고."
+            ],
+            "marks": [
+              "흑안. 탈색 금발 단발.",
+              "비행 재킷. 대형 배낭.",
+              "전신에 걸쳐 흉터."
+            ],
+            "redacted": ["사상·신조"],
+            "quote": {
+              "de": "When's the next one? ... Скучный план.",
+              "ko": "다음 작전은 언제입니까? …곯아터진 계획이군요."
+            }
+          },
+          {
+            "id": "beom",
+            "fileNo": "CU-04",
+            "name": "Beom",
+            "nameKo": "범",
+            "age": 33,
+            "height": "175 cm",
+            "role": "도청 전문가 · 암호 해독가",
+            "idImg": "Beom_id.png",
+            "standImg": "Beom_stand.png",
+            "observed": [
+              "북부제도 수학연구소 수석연구원 경력이 확인됨.",
+              "무선 실시간 감청 및 암호 해독으로 적의 계획을 재구성한다는 평가.",
+              "잔에 달린 손잡이를 항상 북쪽으로 두는 습관이 관측됨."
+            ],
+            "marks": [
+              "흑안. 흑발 포니테일. 은테 안경.",
+              "마른 체형. 피로한 인상.",
+              "우비·오피스룩 위주의 복장."
+            ],
+            "redacted": ["본명", "입국·망명 경로"],
+            "quote": {
+              "de": "Data may be, but do not discard me.",
+              "ko": "데이터는 폐기해도, 나는 폐기하지 말아줘."
+            }
+          },
+          {
+            "id": "claude",
+            "fileNo": "CU-05",
+            "name": "Claude Villeneuve",
+            "nameKo": "클로드 빌네브",
+            "age": 39,
+            "height": "165 cm",
+            "role": "암시장 브로커",
+            "idImg": "Claude_id.png",
+            "standImg": "Claude_stand.png",
+            "observed": [
+              "타 용병단 출신으로 추정됨.",
+              "위조 서류 뭉치를 보유한다는 보고가 반복됨.",
+              "생존 기술 및 정밀 사격에 능하다는 현장 기록."
+            ],
+            "marks": [
+              "녹안. 주황 단발. 주근깨.",
+              "근육질. 흉터 다수."
+            ],
+            "redacted": ["국적", "이전 소속 상세", "신조·발화 기록"],
+            "quote": {
+              "de": null,
+              "ko": null
+            }
+          }
+        ]
+      },
+      {
+        "id": "norwelich",
+        "label": "NORWELICH",
+        "files": [
+          {
+            "id": "wilhelmina",
+            "fileNo": "NW-01",
+            "name": "Wilhelmina Stein",
+            "nameKo": "빌헬미나 슈타인",
+            "age": 45,
+            "height": "172 cm",
+            "role": "중앙수사국 국장 · 대륙 수사 전권 대리",
+            "idImg": "Wilhelmina_id.png",
+            "standImg": "Wilhelmina_stand.png",
+            "observed": [
+              "제국 정보계통의 정점에 위치. 대륙 단위 수사 권한을 행사함.",
+              "독·러·영·불 등 주요 유럽어를 운용한다는 기록이 다수.",
+              "상대의 억양·미세 습관으로부터 출신과 관계를 추정한다는 보고."
+            ],
+            "marks": [
+              "흑안. 은발 단발.",
+              "가죽 코트. 금테 단안경. 실크 장갑.",
+              "시선 회피 없음. 거짓말에 경련성 미소가 관측됨."
+            ],
+            "redacted": [],
+            "quote": {
+              "de": "Sind das Narben vom Schlachtfeld? Bravo! Der Beweis, dass du überlebt hast. Ich hätte dich sauber erledigt.",
+              "ko": "전장에서 입은 흉터입니까? 브라보! 살아 돌아왔다는 증거란. 저라면 당신을 깔끔히 끝장냈을 텐데."
+            }
+          },
+          {
+            "id": "frederica",
+            "fileNo": "NW-02",
+            "name": "Frederica Jünger",
+            "nameKo": "프레데리카 융거",
+            "age": 37,
+            "height": "177 cm",
+            "role": "문화선전국 의장 · 국영방송 총수",
+            "idImg": "Frederica_id.png",
+            "standImg": "Frederica_stand.png",
+            "observed": [
+              "방송·선전을 통한 여론 조작으로 기록됨.",
+              "적군 사기 와해 및 자멸 유도에 방송망을 동원했다는 보고.",
+              "청중이 적을수록 발화가 불안정해진다는 내부 메모가 존재."
+            ],
+            "marks": [
+              "흑안. 흑발 장발.",
+              "모피 외투. 여성형 복장.",
+              "무표정. 보폭의 리듬이 일정함. 음량을 올리지 않음."
+            ],
+            "redacted": [],
+            "quote": {
+              "de": "Hast du Angst? ...Ich verstehe das nicht. Das ist die einzige Philosophie.",
+              "ko": "두려워? …이해할 수 없어. 이것만이 유일한 철학이잖아."
+            }
+          },
+          {
+            "id": "beatrice",
+            "fileNo": "NW-03",
+            "name": "Beatrice Barrymore",
+            "nameKo": "베아티리스 베리모어",
+            "age": 48,
+            "height": "165 cm",
+            "role": "제1기갑군단 총사령관",
+            "idImg": "Beatrice_id.png",
+            "standImg": "Beatrice_stand.png",
+            "observed": [
+              "기갑 전술·지형 운용에서 대륙급으로 평가됨.",
+              "엔진음만으로 기종과 고장을 판별한다는 보고가 반복됨.",
+              "특정 주파수 무선음에 순간적 반응을 보인다는 의료 기록이 존재."
+            ],
+            "marks": [
+              "회안. 미색 곱슬.",
+              "왼팔 기계 의수. 전신 외상.",
+              "시가. 코트·정장."
+            ],
+            "redacted": [],
+            "quote": {
+              "de": "Nichts in meinem Umfeld hat mehr einen Namen.",
+              "ko": "내 궤도 아래 깔려서도 이름이 남은 것은 없더군."
+            }
+          }
+        ]
+      }
+    ]
   },
   "scenes": [
     { "n":  0, "layout": "title", "image": null,
@@ -2087,6 +2568,7 @@ body::before{
       document.getElementById('act-' + k).classList.toggle('is-active', k === name);
     });
     wakeLazy(document.getElementById('act-' + name));
+    if (name === 'dossier') startDossier();
   }
 
   function toCase() {
@@ -2303,6 +2785,284 @@ body::before{
     if (caseState.phase === 'riddle') caseEl.expand.classList.add('on');
   });
 
+  /* ─── [4] DOSSIER : 인물 기록 보관소 ───────────────────────────────────── */
+  var dosState = {
+    faction: 'cinder',
+    index: 0,
+    started: false
+  };
+
+  var dosEl = {
+    act: $('act-dossier'),
+    chips: $('dosChips'),
+    scroll: $('dosScroll'),
+    file: $('dosFile'),
+    back: $('dosBack'),
+    next: $('dosNext'),
+    tabs: document.querySelectorAll('#act-dossier .dos-tab')
+  };
+
+  function factionFiles(id) {
+    var factions = (DATA.dossier && DATA.dossier.factions) || [];
+    for (var i = 0; i < factions.length; i++) {
+      if (factions[i].id === id) return factions[i].files || [];
+    }
+    return [];
+  }
+
+  function currentFile() {
+    var files = factionFiles(dosState.faction);
+    return files[dosState.index] || null;
+  }
+
+  function probeDossierAssets() {
+    var factions = (DATA.dossier && DATA.dossier.factions) || [];
+    factions.forEach(function (f) {
+      (f.files || []).forEach(function (p) {
+        if (p.idImg) probe(p.idImg);
+        if (p.standImg) probe(p.standImg);
+      });
+    });
+  }
+
+  function startDossier() {
+    if (!dosState.started) {
+      dosState.faction = 'cinder';
+      dosState.index = 0;
+      dosState.started = true;
+      probeDossierAssets();
+    }
+    syncDosTabs();
+    renderDosChips();
+    renderDosFile();
+  }
+
+  function syncDosTabs() {
+    Array.prototype.forEach.call(dosEl.tabs, function (tab) {
+      var on = tab.getAttribute('data-faction') === dosState.faction;
+      tab.classList.toggle('is-on', on);
+      tab.setAttribute('aria-selected', String(on));
+    });
+  }
+
+  function setFaction(id) {
+    if (dosState.faction === id) return;
+    dosState.faction = id;
+    dosState.index = 0;
+    syncDosTabs();
+    renderDosChips();
+    renderDosFile();
+  }
+
+  function setDosIndex(i) {
+    var files = factionFiles(dosState.faction);
+    if (!files.length) return;
+    dosState.index = ((i % files.length) + files.length) % files.length;
+    renderDosChips();
+    renderDosFile();
+  }
+
+  function renderDosChips() {
+    var files = factionFiles(dosState.faction);
+    dosEl.chips.innerHTML = '';
+    files.forEach(function (p, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dos-chip' + (i === dosState.index ? ' is-on' : '');
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(i === dosState.index));
+      b.textContent = (p.name || '').split(' ')[0] || p.id;
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setDosIndex(i);
+      });
+      dosEl.chips.appendChild(b);
+    });
+    // 활성 칩이 보이도록 스크롤
+    var on = dosEl.chips.querySelector('.dos-chip.is-on');
+    if (on && on.scrollIntoView) {
+      try { on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }
+      catch (err) { on.scrollIntoView(false); }
+    }
+  }
+
+  function liText(text) {
+    var li = document.createElement('li');
+    li.textContent = text;
+    return li;
+  }
+
+  function liRedacted(label) {
+    var li = document.createElement('li');
+    li.className = 'redacted';
+    var lab = document.createElement('span');
+    lab.textContent = label + ' — ';
+    var bar = document.createElement('span');
+    bar.className = 'dos-censor';
+    bar.setAttribute('aria-label', '검열됨');
+    bar.style.minWidth = Math.max(4.5, Math.min(12, (label.length * 0.55) + 3.5)) + 'em';
+    li.appendChild(lab);
+    li.appendChild(bar);
+    return li;
+  }
+
+  function renderDosFile() {
+    var p = currentFile();
+    dosEl.scroll.innerHTML = '';
+    if (!p) {
+      var empty = document.createElement('p');
+      empty.className = 'dos-sec';
+      empty.style.color = 'rgba(212,203,186,.45)';
+      empty.textContent = '기록 없음.';
+      dosEl.scroll.appendChild(empty);
+      return;
+    }
+
+    // 신원 행
+    var idrow = document.createElement('div');
+    idrow.className = 'dos-idrow';
+
+    var idBox = document.createElement('div');
+    idBox.className = 'dos-id';
+    var idImg = document.createElement('img');
+    idImg.alt = (p.name || '') + ' — identity photograph';
+    idBox.appendChild(idImg);
+    var stamp = document.createElement('span');
+    stamp.className = 'stamp-corner';
+    stamp.textContent = 'NW';
+    idBox.appendChild(stamp);
+    if (p.idImg) loadImage(idImg, p.idImg, idImg.alt);
+    else showPending(idImg, '—');
+
+    var meta = document.createElement('div');
+    meta.className = 'dos-meta';
+    var fileNo = document.createElement('div');
+    fileNo.className = 'file-no';
+    fileNo.textContent = 'FILE ' + (p.fileNo || '—');
+    var nameEn = document.createElement('div');
+    nameEn.className = 'name-en';
+    nameEn.textContent = p.name || 'UNKNOWN';
+    var nameKo = document.createElement('div');
+    nameKo.className = 'name-ko';
+    nameKo.textContent = p.nameKo || '';
+    var role = document.createElement('div');
+    role.className = 'role';
+    role.textContent = p.role || '';
+    var stats = document.createElement('div');
+    stats.className = 'dos-stats';
+    var stAge = document.createElement('span');
+    stAge.className = 'st';
+    stAge.innerHTML = 'AGE<em>' + (p.age != null ? p.age : '—') + '</em>';
+    var stHt = document.createElement('span');
+    stHt.className = 'st';
+    stHt.innerHTML = 'HEIGHT<em>' + (p.height || '—') + '</em>';
+    stats.appendChild(stAge);
+    stats.appendChild(stHt);
+    meta.appendChild(fileNo);
+    meta.appendChild(nameEn);
+    if (p.nameKo) meta.appendChild(nameKo);
+    if (p.role) meta.appendChild(role);
+    meta.appendChild(stats);
+
+    idrow.appendChild(idBox);
+    idrow.appendChild(meta);
+    dosEl.scroll.appendChild(idrow);
+
+    // 스탠딩
+    var stand = document.createElement('div');
+    stand.className = 'dos-stand';
+    var cap = document.createElement('span');
+    cap.className = 'cap';
+    cap.textContent = 'STANDING · ARCHIVE';
+    stand.appendChild(cap);
+    var standImg = document.createElement('img');
+    standImg.alt = (p.name || '') + ' — standing record';
+    stand.appendChild(standImg);
+    if (p.standImg) loadImage(standImg, p.standImg, standImg.alt);
+    else showPending(standImg, '—');
+    dosEl.scroll.appendChild(stand);
+
+    // 관측
+    var obs = document.createElement('section');
+    obs.className = 'dos-sec';
+    var obsLab = document.createElement('div');
+    obsLab.className = 'lab';
+    obsLab.textContent = 'OBSERVED';
+    var obsUl = document.createElement('ul');
+    (p.observed || []).forEach(function (t) { obsUl.appendChild(liText(t)); });
+    if (!(p.observed || []).length) obsUl.appendChild(liText('기재 없음.'));
+    obs.appendChild(obsLab);
+    obs.appendChild(obsUl);
+    dosEl.scroll.appendChild(obs);
+
+    // 외관·표식
+    var marks = document.createElement('section');
+    marks.className = 'dos-sec';
+    var marksLab = document.createElement('div');
+    marksLab.className = 'lab';
+    marksLab.textContent = 'VISIBLE MARKS';
+    var marksUl = document.createElement('ul');
+    (p.marks || []).forEach(function (t) { marksUl.appendChild(liText(t)); });
+    if (!(p.marks || []).length) marksUl.appendChild(liText('기재 없음.'));
+    marks.appendChild(marksLab);
+    marks.appendChild(marksUl);
+    dosEl.scroll.appendChild(marks);
+
+    // 검열
+    if ((p.redacted || []).length) {
+      var red = document.createElement('section');
+      red.className = 'dos-sec';
+      var redLab = document.createElement('div');
+      redLab.className = 'lab';
+      redLab.textContent = 'REDACTED';
+      var redUl = document.createElement('ul');
+      p.redacted.forEach(function (t) { redUl.appendChild(liRedacted(t)); });
+      red.appendChild(redLab);
+      red.appendChild(redUl);
+      dosEl.scroll.appendChild(red);
+    }
+
+    // 발화 기록 (예시대사만 — 성격 서술 금지)
+    var q = p.quote || {};
+    if (q.de || q.ko) {
+      var quote = document.createElement('blockquote');
+      quote.className = 'dos-quote';
+      if (q.de) {
+        var qd = document.createElement('div');
+        qd.className = 'q-de';
+        qd.textContent = '“' + q.de + '”';
+        quote.appendChild(qd);
+      }
+      if (q.ko) {
+        var qk = document.createElement('div');
+        qk.className = 'q-ko';
+        qk.textContent = q.ko;
+        quote.appendChild(qk);
+      }
+      dosEl.scroll.appendChild(quote);
+    }
+
+    dosEl.scroll.scrollTop = 0;
+  }
+
+  Array.prototype.forEach.call(dosEl.tabs, function (tab) {
+    tab.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setFaction(tab.getAttribute('data-faction'));
+    });
+  });
+
+  dosEl.next.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setDosIndex(dosState.index + 1);
+  });
+
+  dosEl.back.addEventListener('click', function (e) {
+    e.stopPropagation();
+    goto('case');
+    startCase(true);
+  });
+
   /* ─── 오디오 ─────────────────────────────────────────────────────────── */
   var muted = false;
   function startAudio() {
@@ -2363,7 +3123,12 @@ body::before{
   });
 
   Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), function (b) {
-    b.addEventListener('click', function (e) { e.stopPropagation(); goto(b.getAttribute('data-goto')); });
+    b.addEventListener('click', function (e) {
+      // 도씨에 CASE 버튼은 전용 핸들러가 startCase까지 담당
+      if (b.id === 'dosBack') return;
+      e.stopPropagation();
+      goto(b.getAttribute('data-goto'));
+    });
   });
 
   /* ─── 다음 컷 사진 미리 받기 (모바일 데이터 배려해 2컷까지만) ────────── */
@@ -2383,6 +3148,7 @@ body::before{
     goto: goto,
     go: function (i) { goto('intro'); go(i); },
     startCase: startCase,
+    startDossier: startDossier,
     /* 테스트용 : 수수께끼 id 지정 후 즉시 수신기 단계로 */
     forceRiddle: function (id) {
       goto('case');
@@ -2392,6 +3158,20 @@ body::before{
         if (found) caseState.riddle = found;
       }
       revealMemo();
+    },
+    /* 테스트용 : 특정 진영·인물 파일 바로 열기 */
+    openFile: function (faction, id) {
+      dosState.started = true;
+      dosState.faction = faction || 'cinder';
+      var files = factionFiles(dosState.faction);
+      var idx = 0;
+      if (id) {
+        for (var i = 0; i < files.length; i++) {
+          if (files[i].id === id) { idx = i; break; }
+        }
+      }
+      dosState.index = idx;
+      goto('dossier');
     },
     data: DATA
   };
