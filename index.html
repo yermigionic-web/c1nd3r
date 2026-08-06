@@ -389,14 +389,17 @@ body::before{
   opacity:0; transition:opacity .75s var(--ease);
 }
 .imglayer.on{ opacity:1; }
+/* 사진은 살짝 밀려들어와 16초에 걸쳐 제자리(가로 너비 정확히 맞춤)로 내려앉는다 */
 .imglayer img{
   width:100%; height:auto; max-height:100%; object-fit:contain;
-  transition:filter 1.05s var(--ease), transform 1.05s var(--ease);
+  transition:filter 1.05s var(--ease), transform 16s cubic-bezier(.12,.66,.28,1);
+  transform:scale(1);
 }
 /* 인화지에서 상이 떠오르듯 : 진입 상태 → 기본 상태로 트랜지션 */
 .imglayer.enter img{
   filter:blur(10px) contrast(.45) brightness(.35) sepia(.6) !important;
-  transform:scale(1.05);
+  transform:scale(1.055);
+  transition:filter 1.05s var(--ease), transform 0s;
 }
 /* 화면 가로 너비에 맞춰 상단 영역 중앙 배치 (하단 텍스트 박스 자리 확보) */
 .imglayer[data-fit="width"]{ inset:6% 0 34% 0; }
@@ -442,7 +445,9 @@ body::before{
 /* 사진 액자 : 얇은 금선 + 모서리 브래킷 */
 .frame-line{
   position:absolute; pointer-events:none; opacity:0;
-  transition:opacity .6s var(--ease); z-index:12;
+  /* 사진과 똑같은 곡선으로 움직여야 액자가 어긋나지 않는다 */
+  transition:opacity .6s var(--ease), transform 16s cubic-bezier(.12,.66,.28,1);
+  z-index:12;
   border:1px solid rgba(200,167,92,.34);
   box-shadow:
     inset 0 0 0 3px rgba(0,0,0,.45),
@@ -928,6 +933,7 @@ body::before{
     </svg>
 
     <div class="flag-sheen" aria-hidden="true"></div>
+    <div class="dust" id="dustMain" aria-hidden="true"></div>
     <div class="tex tex-plate"></div>
     <div class="tex tex-rust"></div>
     <div class="scrim" aria-hidden="true"></div>
@@ -1301,7 +1307,7 @@ body::before{
   }
 
   /* ─── 먼지 / 잿불 파티클 ─────────────────────────────────────────────── */
-  function spawnDust(n) {
+  function spawnDust(n, host) {
     var frag = document.createDocumentFragment();
     for (var i = 0; i < n; i++) {
       var m = document.createElement('span');
@@ -1318,7 +1324,7 @@ body::before{
       m.style.animationDelay = (-Math.random() * 20).toFixed(1) + 's';
       frag.appendChild(m);
     }
-    el.dust.appendChild(frag);
+    (host || el.dust).appendChild(frag);
   }
   function spawnEmbers(n) {
     var frag = document.createDocumentFragment();
@@ -1333,7 +1339,13 @@ body::before{
     }
     el.embers.appendChild(frag);
   }
-  if (!reduce) { spawnDust(26); spawnEmbers(16); } else { spawnDust(8); }
+  if (!reduce) {
+    spawnDust(26);
+    spawnDust(20, $('dustMain'));   // 타이틀 화면에도 재가 날린다
+    spawnEmbers(16);
+  } else {
+    spawnDust(8);
+  }
 
   /* ─── 글자 단위 조판 ([[강조]] 지원) ─────────────────────────────────── */
   function typeInto(node, raw) {
@@ -1407,7 +1419,7 @@ body::before{
     var img = document.createElement('img');
     img.addEventListener('load', function () {
       next.classList.remove('enter');   // 인화 트랜지션 시작
-      applyFrame();
+      applyFrame(true);
     });
     next.appendChild(img);
     loadImage(img, file, opt.alt || '');
@@ -1423,18 +1435,29 @@ body::before{
     currentFile = file;
   }
 
-  // 실제로 렌더링된 사진 크기에 맞춰 액자선을 얹는다
-  function applyFrame() {
-    var img = wantFrame ? frontLayer.querySelector('img') : null;
+  // 액자선은 사진의 '자리잡은' 크기(변형 전 레이아웃 박스)에 맞춘 뒤,
+  // 사진과 같은 곡선으로 함께 축소시킨다.
+  function applyFrame(restartDrift) {
+    var layer = frontLayer;
+    var img = wantFrame ? layer.querySelector('img') : null;
     if (!img) { el.frameLine.classList.remove('on'); return; }
-    var stg = el.stage.getBoundingClientRect();
-    var r = img.getBoundingClientRect();
-    if (r.width < 8 || r.height < 8) { el.frameLine.classList.remove('on'); return; }
-    el.frameLine.style.left   = (r.left - stg.left) + 'px';
-    el.frameLine.style.top    = (r.top  - stg.top)  + 'px';
-    el.frameLine.style.width  = r.width + 'px';
-    el.frameLine.style.height = r.height + 'px';
-    el.frameLine.classList.add('on');
+    var w = img.offsetWidth, h = img.offsetHeight;
+    if (w < 8 || h < 8) { el.frameLine.classList.remove('on'); return; }
+
+    var f = el.frameLine;
+    f.style.left   = (layer.offsetLeft + img.offsetLeft) + 'px';
+    f.style.top    = (layer.offsetTop  + img.offsetTop)  + 'px';
+    f.style.width  = w + 'px';
+    f.style.height = h + 'px';
+    f.classList.add('on');
+
+    if (restartDrift) {
+      f.style.transition = 'none';
+      f.style.transform = 'scale(1.055)';
+      void f.offsetWidth;
+      f.style.transition = '';
+      f.style.transform = 'scale(1)';
+    }
   }
   window.addEventListener('resize', function () { applyFrame(); });
 
