@@ -82,6 +82,7 @@
   --f-mono:    'Share Tech Mono', ui-monospace, monospace;
 
   --stage-w: 460px;
+  --case-stage-w: min(100vw, 840px); /* CASE 수신기를 화면 가로에 가깝게 */
   --ease: cubic-bezier(.22,.61,.36,1);
 }
 
@@ -109,7 +110,8 @@ body{
 img{ display:block; max-width:100%; }
 button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
 
-/* 데스크톱에서는 필드 터미널처럼 보이는 세로 컬럼으로 정렬 */
+/* 데스크톱에서는 필드 터미널처럼 보이는 세로 컬럼으로 정렬.
+   CASE(추리) 화면만 수신기 조작을 위해 가로를 넓힌다. */
 #app{
   position:relative;
   width:min(100vw, var(--stage-w));
@@ -117,7 +119,11 @@ button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; 
   margin-inline:auto;
   overflow:hidden;
   isolation:isolate;
+  transition:width .45s var(--ease);
   background:var(--ink);
+}
+#app:has(#act-case.is-active){
+  width:min(100vw, var(--case-stage-w));
 }
 @media (min-width:780px){
   #app{
