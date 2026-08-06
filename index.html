@@ -988,6 +988,8 @@ body::before{
   display:flex; flex-direction:column;
   padding:calc(env(safe-area-inset-top) + 10px) 3.5% calc(env(safe-area-inset-bottom) + 10px);
   gap:8px;
+  overflow:hidden;
+  max-width:100%;
 }
 
 /* 상단 헤더 */
@@ -1046,6 +1048,7 @@ body::before{
 .dos-chips{
   display:flex; gap:6px; overflow-x:auto; overflow-y:hidden;
   padding:2px 1px 6px; flex:none;
+  max-width:100%;
   -webkit-overflow-scrolling:touch; scrollbar-width:none;
 }
 .dos-chips::-webkit-scrollbar{ display:none; }
@@ -1091,14 +1094,16 @@ body::before{
 .dos-scroll{
   flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;
   padding:14px 14px 16px 16px;
+  max-width:100%;
   -webkit-overflow-scrolling:touch;
 }
 
 /* 상단: 증명사진 + 신원 */
 .dos-idrow{
-  display:grid; grid-template-columns:86px 1fr; gap:12px;
+  display:grid; grid-template-columns:86px minmax(0, 1fr); gap:12px;
   align-items:start; margin-bottom:12px;
 }
+.dos-idrow > *{ min-width:0; }
 .dos-id{
   position:relative; aspect-ratio:1; width:100%;
   background:#0a0c10; border:1px solid rgba(200,167,92,.35);
@@ -1128,6 +1133,7 @@ body::before{
   font-size:clamp(15px,4.4vw,18px); letter-spacing:.06em;
   color:var(--gold-pale); line-height:1.2;
   text-shadow:0 0 14px rgba(200,167,92,.3);
+  overflow-wrap:break-word;
 }
 .dos-meta .name-ko{
   margin-top:2px; font-family:var(--f-body); font-size:12px;
@@ -1219,10 +1225,13 @@ body::before{
   margin-top:12px; padding:10px 12px;
   border-left:2px solid rgba(200,167,92,.45);
   background:rgba(0,0,0,.28);
+  max-width:100%;
+  overflow-wrap:break-word;
 }
 .dos-quote .q-de{
   font-family:var(--f-body); font-style:italic; font-size:12px;
-  line-height:1.65; color:rgba(231,216,172,.7); word-break:keep-all;
+  line-height:1.65; color:rgba(231,216,172,.7);
+  overflow-wrap:break-word; word-break:normal;
 }
 .dos-quote .q-ko{
   margin-top:6px; font-family:var(--f-mono); font-size:9.5px;
@@ -2862,6 +2871,21 @@ body::before{
     renderDosFile();
   }
 
+  function scrollDosChipIntoView(chip) {
+    if (!chip || !dosEl.chips) return;
+    var wrap = dosEl.chips;
+    var pad = 6;
+    var left = chip.offsetLeft;
+    var right = left + chip.offsetWidth;
+    var viewLeft = wrap.scrollLeft;
+    var viewRight = viewLeft + wrap.clientWidth;
+    if (left < viewLeft + pad) {
+      wrap.scrollLeft = Math.max(0, left - pad);
+    } else if (right > viewRight - pad) {
+      wrap.scrollLeft = right - wrap.clientWidth + pad;
+    }
+  }
+
   function renderDosChips() {
     var files = factionFiles(dosState.faction);
     dosEl.chips.innerHTML = '';
@@ -2878,12 +2902,8 @@ body::before{
       });
       dosEl.chips.appendChild(b);
     });
-    // 활성 칩이 보이도록 스크롤
-    var on = dosEl.chips.querySelector('.dos-chip.is-on');
-    if (on && on.scrollIntoView) {
-      try { on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }
-      catch (err) { on.scrollIntoView(false); }
-    }
+    // 칩 행 안에서만 스크롤 (scrollIntoView는 뷰포트까지 밀 수 있음)
+    scrollDosChipIntoView(dosEl.chips.querySelector('.dos-chip.is-on'));
   }
 
   function liText(text) {
