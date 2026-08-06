@@ -106,6 +106,7 @@ body{
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
   overflow:hidden;
+  overflow-x:clip;
   overscroll-behavior:none;
   touch-action:manipulation;
   -webkit-user-select:none; user-select:none;
@@ -121,6 +122,7 @@ button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; 
   height:100dvh; height:100svh;
   margin-inline:auto;
   overflow:hidden;
+  overflow-x:clip;
   isolation:isolate;
   background:var(--ink);
 }
@@ -208,6 +210,11 @@ body::before{
   z-index:1;
 }
 .act.is-active{ opacity:1; visibility:visible; z-index:2; }
+#act-dossier{
+  overflow:hidden;
+  overflow-x:clip;
+  max-width:100%;
+}
 
 /* 전환 플래시 (메인 → 프롤로그, 1초 이내) */
 #flash{
@@ -989,7 +996,9 @@ body::before{
   padding:calc(env(safe-area-inset-top) + 10px) 3.5% calc(env(safe-area-inset-bottom) + 10px);
   gap:8px;
   overflow:hidden;
+  overflow-x:clip;
   max-width:100%;
+  min-width:0;
 }
 
 /* 상단 헤더 */
@@ -1000,11 +1009,18 @@ body::before{
   border:1px solid rgba(200,167,92,.42);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
   flex:none;
+  min-width:0;
+  overflow:hidden;
 }
 .dos-head .sig{ width:18px; height:18px; color:var(--gold); flex:none; }
 .dos-head .ttl{
   font-family:var(--f-mono); font-size:9.5px; letter-spacing:.28em;
   color:var(--gold-pale);
+  min-width:0;
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 .dos-head .ttl b{ font-weight:400; color:rgba(212,203,186,.45); }
 .dos-head .cls{
@@ -1049,6 +1065,9 @@ body::before{
   display:flex; gap:6px; overflow-x:auto; overflow-y:hidden;
   padding:2px 1px 6px; flex:none;
   max-width:100%;
+  min-width:0;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x;
   -webkit-overflow-scrolling:touch; scrollbar-width:none;
 }
 .dos-chips::-webkit-scrollbar{ display:none; }
@@ -1059,6 +1078,7 @@ body::before{
   border:1px solid rgba(200,167,92,.22);
   background:rgba(10,12,15,.75);
   white-space:nowrap;
+  scroll-margin:0;
   transition:color .2s, border-color .2s, background .2s;
 }
 .dos-chip.is-on{
@@ -1070,7 +1090,7 @@ body::before{
 
 /* 파일 본체 */
 .dos-file{
-  position:relative; flex:1; min-height:0;
+  position:relative; flex:1; min-height:0; min-width:0;
   display:flex; flex-direction:column; gap:0;
   background:
     linear-gradient(180deg, rgba(22,26,32,.96), rgba(8,10,13,.98)),
@@ -1078,6 +1098,7 @@ body::before{
   border:1px solid rgba(200,167,92,.4);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 16px 40px rgba(0,0,0,.55);
   overflow:hidden;
+  overflow-x:clip;
 }
 .dos-file::before{
   content:""; position:absolute; left:0; top:10px; bottom:10px; width:3px;
@@ -1092,9 +1113,13 @@ body::before{
 .dos-rivet.bl{ left:7px; bottom:7px } .dos-rivet.br{ right:7px; bottom:7px }
 
 .dos-scroll{
-  flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;
+  flex:1; min-height:0; min-width:0;
+  overflow-y:auto;
+  overflow-x:clip;
   padding:14px 14px 16px 16px;
   max-width:100%;
+  scrollbar-gutter:stable;
+  overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
 }
 
@@ -1109,7 +1134,7 @@ body::before{
   background:#0a0c10; border:1px solid rgba(200,167,92,.35);
   overflow:hidden;
 }
-.dos-id img{ width:100%; height:100%; object-fit:cover; }
+.dos-id img{ width:100%; height:100%; min-width:0; object-fit:cover; }
 .dos-id .pending{
   width:100%; height:100%; aspect-ratio:auto; border:0; box-shadow:none;
   padding:8px; gap:4px;
@@ -1167,7 +1192,10 @@ body::before{
   overflow:hidden;
 }
 .dos-stand img{
-  height:100%; width:auto; max-width:100%; object-fit:contain; object-position:bottom center;
+  display:block;
+  width:100%; height:100%; min-width:0;
+  max-width:100%;
+  object-fit:contain; object-position:bottom center;
   filter:drop-shadow(0 8px 20px rgba(0,0,0,.7));
 }
 .dos-stand .pending{
@@ -1196,7 +1224,9 @@ body::before{
 .dos-sec li{
   position:relative; padding-left:12px;
   font-family:var(--f-body); font-size:12.5px; line-height:1.7;
-  color:rgba(232,226,212,.82); word-break:keep-all;
+  color:rgba(232,226,212,.82);
+  word-break:keep-all;
+  overflow-wrap:break-word;
 }
 .dos-sec li::before{
   content:""; position:absolute; left:0; top:.65em;
@@ -2842,8 +2872,9 @@ body::before{
       probeDossierAssets();
     }
     syncDosTabs();
-    renderDosChips();
+    renderDosChips(true);
     renderDosFile();
+    resetDosViewport();
   }
 
   function syncDosTabs() {
@@ -2859,16 +2890,24 @@ body::before{
     dosState.faction = id;
     dosState.index = 0;
     syncDosTabs();
-    renderDosChips();
+    renderDosChips(true);
     renderDosFile();
+    resetDosViewport();
   }
 
   function setDosIndex(i) {
     var files = factionFiles(dosState.faction);
     if (!files.length) return;
     dosState.index = ((i % files.length) + files.length) % files.length;
-    renderDosChips();
+    syncDosChipSelection();
     renderDosFile();
+    resetDosViewport();
+  }
+
+  function resetDosViewport() {
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollLeft = 0;
+    if (document.body) document.body.scrollLeft = 0;
   }
 
   function scrollDosChipIntoView(chip) {
@@ -2882,12 +2921,34 @@ body::before{
     if (left < viewLeft + pad) {
       wrap.scrollLeft = Math.max(0, left - pad);
     } else if (right > viewRight - pad) {
-      wrap.scrollLeft = right - wrap.clientWidth + pad;
+      wrap.scrollLeft = Math.max(0, right - wrap.clientWidth + pad);
     }
   }
 
-  function renderDosChips() {
+  function bindDosChip(chip, i) {
+    chip.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setDosIndex(i);
+      if (chip.blur) chip.blur();
+    });
+  }
+
+  function syncDosChipSelection() {
+    Array.prototype.forEach.call(dosEl.chips.children, function (chip, i) {
+      var on = i === dosState.index;
+      chip.classList.toggle('is-on', on);
+      chip.setAttribute('aria-selected', String(on));
+    });
+    scrollDosChipIntoView(dosEl.chips.querySelector('.dos-chip.is-on'));
+  }
+
+  function renderDosChips(rebuild) {
     var files = factionFiles(dosState.faction);
+    if (!rebuild && dosEl.chips.children.length === files.length) {
+      syncDosChipSelection();
+      return;
+    }
+
     dosEl.chips.innerHTML = '';
     files.forEach(function (p, i) {
       var b = document.createElement('button');
@@ -2895,14 +2956,11 @@ body::before{
       b.className = 'dos-chip' + (i === dosState.index ? ' is-on' : '');
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', String(i === dosState.index));
+      b.setAttribute('tabindex', i === dosState.index ? '0' : '-1');
       b.textContent = (p.name || '').split(' ')[0] || p.id;
-      b.addEventListener('click', function (e) {
-        e.stopPropagation();
-        setDosIndex(i);
-      });
+      bindDosChip(b, i);
       dosEl.chips.appendChild(b);
     });
-    // 칩 행 안에서만 스크롤 (scrollIntoView는 뷰포트까지 밀 수 있음)
     scrollDosChipIntoView(dosEl.chips.querySelector('.dos-chip.is-on'));
   }
 
@@ -3063,6 +3121,7 @@ body::before{
     }
 
     dosEl.scroll.scrollTop = 0;
+    resetDosViewport();
   }
 
   Array.prototype.forEach.call(dosEl.tabs, function (tab) {
