@@ -238,6 +238,29 @@ body::before{
 
 .flags{ position:absolute; inset:0; width:100%; height:100%; z-index:3; }
 .flag-fold{ mix-blend-mode:multiply; }
+/* 천이 바람에 밀리는 큰 움직임 (변위 필터의 잔결과 합쳐진다) */
+.sway{ transform-box:view-box; transform-origin:50% 0%; animation:sway 7s ease-in-out infinite; }
+.sway-b{ animation-duration:8.6s; animation-delay:-2.4s; }
+.sway-c{ animation-duration:10.4s; animation-delay:-5.1s; }
+@keyframes sway{
+  0%,100%{ transform:translateX(0)     skewX(0deg)     scaleY(1) }
+  26%    { transform:translateX(-15px) skewX(-1.7deg)  scaleY(1.012) }
+  50%    { transform:translateX(5px)   skewX(.7deg)    scaleY(.994) }
+  74%    { transform:translateX(13px)  skewX(1.5deg)   scaleY(1.009) }
+}
+/* 천 위를 지나가는 빛 : 움직임이 눈에 확실히 걸리도록 */
+.flag-sheen{
+  position:absolute; left:0; right:0; top:0; height:74%; z-index:4; pointer-events:none;
+  mix-blend-mode:overlay; opacity:.55;
+  background:linear-gradient(102deg,
+    transparent 30%, rgba(231,216,172,.10) 42%, rgba(255,255,255,.20) 50%,
+    rgba(231,216,172,.10) 58%, transparent 70%);
+  background-size:230% 100%;
+  animation:sheenMove 9s ease-in-out infinite;
+}
+@keyframes sheenMove{
+  0%,100%{ background-position:150% 0 } 50%{ background-position:-50% 0 }
+}
 /* 깃발 위에 얹어 로고를 앞으로 끌어내는 어둠 */
 .scrim{
   position:absolute; inset:0; z-index:8; pointer-events:none;
@@ -488,6 +511,11 @@ body::before{
   24%{opacity:.5} 28%{opacity:0} 38%{opacity:.22} 42%{opacity:0}
   58%{opacity:.1} 62%{opacity:0} 100%{opacity:0}
 }
+/* 밈 컷 진입용 셔터 플래시 */
+.blink.snap{ animation:blinkSnap .46s steps(1,end) forwards; }
+@keyframes blinkSnap{
+  0%{opacity:.92} 20%{opacity:0} 34%{opacity:.5} 52%{opacity:0} 100%{opacity:0}
+}
 
 /* ── 자막 판 ─────────────────────────────────────────────────────────────── */
 .textbox{
@@ -624,12 +652,13 @@ body::before{
   display:flex; align-items:flex-end; justify-content:center;
   opacity:0;
 }
-.cast-slot.live{ animation:castIn 2s var(--ease) both; }
+/* 앞 사람의 퇴장과 뒷사람의 등장이 겹치도록 (검은 프레임이 끼지 않게) */
+.cast-slot.live{ animation:castIn 2.4s var(--ease) both; }
 @keyframes castIn{
-  0%  { opacity:0; transform:translateX(26px) scale(1.06); filter:blur(8px) brightness(.4) }
-  16% { opacity:1; transform:translateX(0) scale(1.02);    filter:blur(0) brightness(1) }
-  84% { opacity:1; transform:translateX(-8px) scale(1);    filter:blur(0) brightness(1) }
-  100%{ opacity:0; transform:translateX(-22px) scale(.99); filter:blur(6px) brightness(.5) }
+  0%  { opacity:0; transform:translateX(22px) scale(1.05); filter:blur(7px) brightness(.45) }
+  11% { opacity:1; transform:translateX(4px) scale(1.02);  filter:blur(0) brightness(1) }
+  84% { opacity:1; transform:translateX(-6px) scale(1);    filter:blur(0) brightness(1) }
+  100%{ opacity:0; transform:translateX(-18px) scale(.99); filter:blur(5px) brightness(.55) }
 }
 .cast-slot img{ width:auto; height:88%; max-width:96%; object-fit:contain;
   filter:drop-shadow(0 22px 40px rgba(0,0,0,.85)) drop-shadow(0 0 30px rgba(200,167,92,.16)); }
@@ -752,7 +781,7 @@ body::before{
    07. 접근성 / 저사양 배려
    ══════════════════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce){
-  .tex-grain,.searchlight,.cast-sweep,.mote,.ember{ animation:none !important; }
+  .tex-grain,.searchlight,.cast-sweep,.mote,.ember,.sway,.flag-sheen{ animation:none !important; }
   .ch{ animation:none !important; opacity:1 !important; }
   #mainLogo,.imglayer.shine img,.logo-wrap::before{ animation:none !important; }
 }
@@ -778,15 +807,15 @@ body::before{
     <!-- 천이 펄럭이는 변위 필터 -->
     <filter id="ripple" x="-15%" y="-15%" width="130%" height="130%">
       <feTurbulence type="fractalNoise" baseFrequency="0.004 0.013" numOctaves="2" seed="7" result="t">
-        <animate attributeName="baseFrequency" dur="18s" repeatCount="indefinite"
-                 values="0.004 0.013; 0.007 0.021; 0.003 0.011; 0.004 0.013"/>
+        <animate attributeName="baseFrequency" dur="8s" repeatCount="indefinite"
+                 values="0.004 0.013; 0.009 0.024; 0.003 0.010; 0.004 0.013"/>
       </feTurbulence>
-      <feDisplacementMap in="SourceGraphic" in2="t" scale="13" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="17" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="ripple-soft" x="-15%" y="-15%" width="130%" height="130%">
       <feTurbulence type="fractalNoise" baseFrequency="0.003 0.009" numOctaves="2" seed="19" result="t2">
-        <animate attributeName="baseFrequency" dur="24s" repeatCount="indefinite"
-                 values="0.003 0.009; 0.006 0.016; 0.003 0.009"/>
+        <animate attributeName="baseFrequency" dur="11s" repeatCount="indefinite"
+                 values="0.003 0.009; 0.007 0.018; 0.003 0.009"/>
       </feTurbulence>
       <feDisplacementMap in="SourceGraphic" in2="t2" scale="17" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
@@ -847,7 +876,7 @@ body::before{
     <!-- 펄럭이는 깃발 ─ 이미지 없이 SVG 변위 필터로 생성 -->
     <svg class="flags" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <!-- 뒤편 대형 현수막 : 재색 천 두 장 (좌우 비대칭으로 겹친다) -->
-      <g filter="url(#ripple-soft)" opacity=".72">
+      <g class="sway sway-c" filter="url(#ripple-soft)" opacity=".72">
         <path d="M-40 -20 L214 -58 L214 618 L96 562 L-40 646 Z" fill="url(#gAsh)"/>
         <path d="M-40 -20 L214 -58 L214 618 L96 562 L-40 646 Z" fill="url(#gFold)" class="flag-fold"/>
         <path d="M186 -58 L440 -20 L440 656 L322 578 L186 622 Z" fill="url(#gAsh)"/>
@@ -855,7 +884,7 @@ body::before{
       </g>
 
       <!-- 적색기 (좌) -->
-      <g filter="url(#ripple)" opacity=".62">
+      <g class="sway" filter="url(#ripple)" opacity=".62">
         <path d="M-24 44 L142 16 L142 496 L60 452 L-24 512 Z"
               fill="url(#gRed)" stroke="#1a0d0d" stroke-width="1.5"/>
         <path d="M-24 44 L142 16 L142 496 L60 452 L-24 512 Z" fill="url(#gFold)" class="flag-fold"/>
@@ -865,7 +894,7 @@ body::before{
       </g>
 
       <!-- 청색기 (우) -->
-      <g filter="url(#ripple)" opacity=".60">
+      <g class="sway sway-b" filter="url(#ripple)" opacity=".60">
         <path d="M258 16 L424 44 L424 512 L340 452 L258 496 Z"
               fill="url(#gBlue)" stroke="#0d1319" stroke-width="1.5"/>
         <path d="M258 16 L424 44 L424 512 L340 452 L258 496 Z" fill="url(#gFold)" class="flag-fold"/>
@@ -875,7 +904,7 @@ body::before{
       </g>
 
       <!-- 버튼이 놓이는 자리 : 찢긴 금색 띠 -->
-      <g filter="url(#ripple-soft)" opacity=".26">
+      <g class="sway sway-b" filter="url(#ripple-soft)" opacity=".26">
         <path d="M-40 566 Q90 542 200 562 T440 552 L440 634 Q300 662 200 638 T-40 656 Z" fill="url(#gGold)"/>
         <path d="M-40 566 Q90 542 200 562 T440 552 L440 634 Q300 662 200 638 T-40 656 Z" fill="url(#gFold)" class="flag-fold"/>
       </g>
@@ -898,6 +927,7 @@ body::before{
       </g>
     </svg>
 
+    <div class="flag-sheen" aria-hidden="true"></div>
     <div class="tex tex-plate"></div>
     <div class="tex tex-rust"></div>
     <div class="scrim" aria-hidden="true"></div>
@@ -1136,7 +1166,7 @@ body::before{
     { "n": 12, "layout": "box", "image": "@keep", "burn": true,
       "text": "모든 국가는 하나의 국가에 의해 괴뢰국화하거나 멸망했다." },
 
-    { "n": 13, "layout": "meme", "image": "norwelich.png", "fit": "meme", "neon": true, "burn": true,
+    { "n": 13, "layout": "meme", "image": "norwelich.png", "fit": "meme", "neon": true, "burn": true, "flash": true,
       "top": "대륙사에서 이상한 일이 일어났을 때 이 새끼를 찍으면 대충 맞는다",
       "bottom": "이번 이야기도 만악의 근원 군국주의에서 출발한다" },
 
@@ -1204,10 +1234,27 @@ body::before{
   };
 
   /* ─── 에셋 로딩 : 상대경로 우선, 실패 시 GitHub raw, 그래도 없으면 안내 카드 ── */
+  var probed = Object.create(null);   // 미리 찔러본 파일
+  var missing = Object.create(null);  // 아직 업로드 안 된 파일
+
+  // 미리 확인해두면, 없는 파일도 화면에 즉시 안내 카드로 뜬다 (컷 사이 검은 틈 방지)
+  function probe(file) {
+    if (!file || probed[file]) return;
+    probed[file] = true;
+    var a = new Image();
+    a.onerror = function () {
+      var b = new Image();
+      b.onerror = function () { missing[file] = true; };
+      b.src = DATA.assets.fallbackBase + file;
+    };
+    a.src = DATA.assets.base + file;
+  }
+
   function loadImage(img, file, altText) {
     img.setAttribute('data-file', file);
     img.alt = altText || '';
     img.dataset.stage = '0';
+    if (missing[file]) { showPending(img, file); return; }
     img.onerror = function () {
       if (img.dataset.stage === '0') {
         img.dataset.stage = '1';
@@ -1215,6 +1262,7 @@ body::before{
       } else {
         img.dataset.stage = '2';
         img.onerror = null;
+        missing[file] = true;
         showPending(img, file);
       }
     };
@@ -1402,6 +1450,7 @@ body::before{
     el.cast.classList.add('on');
     var hold = DATA.castHoldMs || 2000;
 
+    var lead = 320;   // 앞 컷과 겹치는 시간
     CAST.forEach(function (person, i) {
       castTimers.push(setTimeout(function () {
         var slot = document.createElement('div');
@@ -1412,8 +1461,8 @@ body::before{
         // 파일이 없으면 안내 카드로 대체
         loadImage(img, person.anime, person.name + ' — ' + person.anime);
         requestAnimationFrame(function () { slot.classList.add('live'); });
-        castTimers.push(setTimeout(function () { slot.remove(); }, hold + 400));
-      }, i * hold));
+        castTimers.push(setTimeout(function () { slot.remove(); }, hold + lead + 200));
+      }, Math.max(0, i * hold - lead)));
     });
 
     castTimers.push(setTimeout(function () {
@@ -1457,6 +1506,13 @@ body::before{
     // 전화(戰火) 오버레이
     if (s.burn) { el.burn.classList.add('on'); el.embers.classList.add('on'); }
     else        { el.burn.classList.remove('on'); el.embers.classList.remove('on'); }
+
+    // 셔터 플래시로 컷을 끊는다
+    if (s.flash) {
+      el.blink.classList.remove('snap');
+      void el.blink.offsetWidth;
+      el.blink.classList.add('snap');
+    }
 
     var chars = 0;
 
@@ -1613,7 +1669,9 @@ body::before{
   function preloadFrom(i) {
     for (var k = i; k < Math.min(i + 3, SCENES.length); k++) {
       var f = SCENES[k].image;
-      if (f && f !== '@keep') { var im = new Image(); im.src = DATA.assets.base + f; }
+      if (f && f !== '@keep') probe(f);
+      // 캐릭터 컷은 2초씩 끊기지 않도록 미리 전부 확인해 둔다
+      if (SCENES[k].layout === 'cast') CAST.forEach(function (p) { probe(p.anime); });
     }
   }
   var origGo = go;
