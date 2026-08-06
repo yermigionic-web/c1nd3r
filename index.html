@@ -27,17 +27,20 @@
      │     · 권장   : 세로형 900x1400 내외(전신 스탠딩), 배경 투명 PNG 권장          │
      │       (투명 PNG면 뒤의 강철 배경/조명 효과가 그대로 살아납니다)               │
      │                                                                          │
-     │  3) 추후 캐릭터 페이지용 (지금은 자리만 잡아둠, 안내 오시면 연결합니다)         │
+     │  3) Beom_stand.png ─ [3] 추리 파트 왼쪽 하단 스탠딩                            │
+     │     · 권장   : 세로형 900x1400 내외(전신), 배경 투명 PNG 권장                   │
+     │                                                                          │
+     │  4) 추후 캐릭터 페이지용 (지금은 자리만 잡아둠, 안내 오시면 연결합니다)         │
      │     · Eliza_stand.png … (스탠딩)  / Eliza_id.png … (증명사진, 정사각 1:1)    │
      │                                                                          │
-     │  ※ 파일명은 하단 JSON의 "cast" / "scenes" 항목만 고치면 그대로 반영됩니다.     │
+     │  ※ 파일명은 하단 JSON의 "cast" / "scenes" / "case" 항목만 고치면 반영됩니다.   │
      │  ※ 이미지가 아직 없으면 화면에 "IMAGE PENDING" 도면 카드가 대신 표시됩니다.    │
      └──────────────────────────────────────────────────────────────────────────┘
 
      이미 저장소에 있는 에셋 : logo.png / norwelich.png / norwelich_map.png /
        northern_isles.png / eastern_federation.png / western_republics.png /
        ruined_city.png / border_city.png / cinder_unit.png / Norwelich.mp3
-       (district_seven.png, kelchita.png → [3] 추리 파트용으로 예약)
+       (district_seven.png → [3] 추리 배경 / kelchita.png → [4] 캐릭터 배경)
 ============================================================================= -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -410,9 +413,9 @@ body::before{
 /* 가운데 로고형 배치 */
 .imglayer[data-fit="center"]{ inset:8% 0 34% 0; }
 .imglayer[data-fit="center"] img{ width:88%; }
-/* 밈 컷 : 위·아래 카피 사이 */
-.imglayer[data-fit="meme"]{ inset:22% 0 22% 0; }
-.imglayer[data-fit="meme"] img{ width:92%; }
+/* 밈 컷 : 로고를 정중앙에, 위·아래 카피는 로고에 바짝 */
+.imglayer[data-fit="meme"]{ inset:42% 0 42% 0; }
+.imglayer[data-fit="meme"] img{ width:90%; }
 /* 마지막 로고 컷 */
 .imglayer[data-fit="logo"]{ inset:26% 0 46% 0; }
 .imglayer[data-fit="logo"] img{ width:82%; }
@@ -608,8 +611,16 @@ body::before{
     0 0 22px rgba(200,167,92,.55), 0 6px 18px rgba(0,0,0,.9);
 }
 .meme-line.on{ opacity:1; }
-.meme-line.top{ top:6.5%; }
-.meme-line.bottom{ bottom:7.5%; }
+/* 화면 세로 중앙을 기준으로 로고 위·아래에 붙인다 */
+.meme-line.top{
+  top:50%; bottom:auto;
+  transform:translateY(calc(-100% - 3.6em));
+}
+.meme-line.bottom{
+  top:50%; bottom:auto;
+  transform:translateY(3.2em);
+}
+.meme-line.top.on,.meme-line.bottom.on{ opacity:1; }
 
 /* ── 오프닝 고지 카드 ───────────────────────────────────────────────────── */
 .title-card{
@@ -743,7 +754,197 @@ body::before{
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   06. [3][4] 다음 파트 자리 (추리 / 캐릭터) ─ 안내 받는 대로 채웁니다
+   06. [3] CASE ─ 추리 오프닝 (Beom + 수신기 + 메모 수수께끼)
+   ══════════════════════════════════════════════════════════════════════════ */
+.case-bg{ position:absolute; inset:0; }
+.case-bg img{ width:100%; height:100%; object-fit:cover; opacity:.22; filter:grayscale(.55) contrast(1.12) brightness(.7); }
+.case-bg::after{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(80% 50% at 70% 40%, rgba(70,97,123,.14), transparent 70%),
+    linear-gradient(180deg, rgba(4,5,7,.78), rgba(4,5,7,.92) 55%, rgba(4,5,7,.96));
+}
+
+/* 아날로그 페이저 전광판 */
+.pager{
+  position:absolute; left:4%; right:4%; top:calc(env(safe-area-inset-top) + 10px);
+  z-index:40; height:34px;
+  background:linear-gradient(180deg,#1a1e24,#0a0c10);
+  border:1px solid rgba(200,167,92,.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 6px 18px rgba(0,0,0,.6);
+  overflow:hidden;
+}
+.pager::before,.pager::after{
+  content:""; position:absolute; top:50%; width:6px; height:6px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #cfc7b6, #3a3832); transform:translateY(-50%);
+}
+.pager::before{ left:6px } .pager::after{ right:6px }
+.pager-glass{
+  position:absolute; inset:5px 16px;
+  background:#0e1a12;
+  box-shadow:inset 0 0 12px rgba(0,0,0,.9), inset 0 0 2px rgba(80,200,120,.25);
+  overflow:hidden;
+}
+.pager-track{
+  position:absolute; top:0; left:0; height:100%;
+  display:flex; align-items:center; white-space:nowrap;
+  width:max-content; padding:0 12px;
+  font-family:var(--f-mono); font-size:12px; letter-spacing:.18em;
+  color:#6dff9a; text-shadow:0 0 6px rgba(80,255,140,.55);
+  transform:translateX(0);
+}
+.pager.alarm .pager-glass{ background:#1a1208; box-shadow:inset 0 0 14px rgba(0,0,0,.9), inset 0 0 3px rgba(255,160,60,.35); }
+.pager.alarm .pager-track{
+  color:#ffb24a; text-shadow:0 0 8px rgba(255,140,40,.7);
+  animation:pagerScroll 4.2s linear infinite;
+}
+.pager.fail .pager-track{ color:#ff6a6a; text-shadow:0 0 8px rgba(255,60,60,.55); }
+/* 텍스트를 두 번 이어 붙인 뒤 절반만 밀면 끊김 없이 돈다. 시작부터 화면에 보인다. */
+@keyframes pagerScroll{
+  0%{ transform:translateX(0) }
+  100%{ transform:translateX(-50%) }
+}
+
+/* 왼쪽 상단 메모지 (작을 때) */
+.memo{
+  position:absolute; left:3.5%; top:calc(env(safe-area-inset-top) + 54px);
+  z-index:36; width:58px; height:70px;
+  transform:rotate(-8deg);
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.55));
+  transition:opacity .4s, transform .5s var(--ease);
+  cursor:default; pointer-events:none;
+}
+.memo svg{ width:100%; height:100%; display:block; }
+.memo.is-hidden{ opacity:0; transform:rotate(-8deg) scale(.6); pointer-events:none; }
+
+/* 확대된 메모 */
+.memo-expand{
+  position:absolute; inset:0; z-index:45;
+  display:flex; align-items:center; justify-content:center;
+  padding:18% 7% 28%;
+  background:rgba(0,0,0,.55);
+  opacity:0; visibility:hidden;
+  transition:opacity .55s var(--ease), visibility .55s;
+  pointer-events:none;
+}
+.memo-expand.on{ opacity:1; visibility:visible; pointer-events:auto; }
+.memo-sheet{
+  position:relative; width:min(100%,340px);
+  padding:28px 24px 22px;
+  background:
+    linear-gradient(165deg, #e8d9b8 0%, #d4c19a 48%, #c7b288 100%);
+  color:#2a2216;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.45) inset,
+    0 18px 50px rgba(0,0,0,.65),
+    0 0 0 1px rgba(90,70,40,.35);
+  transform:translate(-40%,-48%) scale(.18) rotate(-8deg);
+  transform-origin:top left;
+  transition:transform .7s cubic-bezier(.18,.82,.22,1);
+}
+.memo-expand.on .memo-sheet{ transform:translate(0,0) scale(1) rotate(-1.2deg); }
+.memo-sheet::before{ /* 테이프 */
+  content:""; position:absolute; left:50%; top:-8px; width:54px; height:16px;
+  transform:translateX(-50%) rotate(-2deg);
+  background:linear-gradient(180deg, rgba(231,216,172,.55), rgba(200,167,92,.35));
+  box-shadow:0 1px 2px rgba(0,0,0,.2);
+}
+.memo-sheet .memo-rule{
+  height:1px; margin:0 0 14px;
+  background:repeating-linear-gradient(90deg, rgba(60,45,25,.35) 0 4px, transparent 4px 8px);
+}
+.memo-sheet .riddle{
+  font-family:var(--f-body); font-weight:500;
+  font-size:clamp(14px,3.9vw,16px); line-height:1.85;
+  letter-spacing:.01em; word-break:keep-all;
+  white-space:pre-line;
+}
+.memo-sheet .memo-foot{
+  margin-top:18px; font-family:var(--f-mono); font-size:9.5px;
+  letter-spacing:.18em; color:rgba(60,45,25,.5);
+}
+.memo-actions{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; margin-top:14px;
+}
+.memo-close{
+  font-family:var(--f-mono); font-size:10px; letter-spacing:.18em;
+  color:#2a2216; padding:7px 12px;
+  border:1px solid rgba(60,45,25,.4);
+  background:rgba(255,255,255,.2);
+}
+
+/* 수신기 */
+.radio-wrap{
+  position:absolute; left:8%; right:3%; top:15%;
+  z-index:20; display:flex; justify-content:flex-end;
+  transition:transform .45s var(--ease), filter .3s;
+}
+.radio-wrap.locked{ filter:saturate(.7) brightness(.92); }
+.radio-wrap.shake{ animation:radioShake .42s ease; }
+@keyframes radioShake{
+  0%,100%{ transform:translateX(0) } 20%{ transform:translateX(-7px) }
+  40%{ transform:translateX(7px) } 60%{ transform:translateX(-4px) } 80%{ transform:translateX(3px) }
+}
+.radio{ width:min(100%,400px); height:auto; display:block; filter:drop-shadow(0 16px 28px rgba(0,0,0,.7)); }
+.radio .hit{ cursor:pointer; }
+.radio .hit:focus{ outline:none; }
+.radio-wrap:not(.live) .hit{ cursor:default; pointer-events:none; }
+.radio .hit:hover .keycap,
+.radio .hit:focus-visible .keycap{ filter:brightness(1.18); }
+.radio .hit.is-on .keycap{ filter:brightness(1.35); }
+.radio .hit.is-wrong .keycap{ animation:keyFlash .45s ease; }
+@keyframes keyFlash{
+  0%,100%{ fill:#3a3030 } 40%{ fill:#8f3f3f }
+}
+
+/* Beom 스탠딩 */
+.beom-stand{
+  position:absolute; left:-1%; bottom:0; z-index:25;
+  width:38%; max-width:170px; height:48%;
+  display:flex; align-items:flex-end; justify-content:center;
+  pointer-events:none;
+  opacity:0; transform:translateX(-18px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
+}
+.beom-stand.on{ opacity:1; transform:translateX(0); }
+.beom-stand img{
+  width:100%; height:100%; object-fit:contain; object-position:bottom center;
+  filter:drop-shadow(0 10px 22px rgba(0,0,0,.75));
+}
+.beom-stand .pending{
+  width:92%; aspect-ratio:3/5; margin-bottom:10%;
+  align-self:flex-end;
+  padding:12px 8px;
+}
+.beom-stand .pending code{ font-size:11px; }
+
+/* 추리 파트 대사 박스 */
+.case-box{
+  position:absolute; left:36%; right:4%; bottom:14%;
+  z-index:30; opacity:0; transform:translateY(12px);
+  transition:opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events:none;
+}
+.case-box.on{ opacity:1; transform:translateY(0); pointer-events:auto; }
+.case-box .tb-plate{ padding:14px 16px 16px; }
+.case-box .tb-text{
+  font-family:var(--f-body); font-size:clamp(12.5px,3.5vw,14.5px);
+  line-height:1.7; min-height:2.4em;
+}
+.case-box .tb-head span:first-child{ color:var(--gold-pale); }
+.case-hint{
+  position:absolute; left:0; right:0;
+  bottom:calc(env(safe-area-inset-bottom) + 10px);
+  z-index:30; text-align:center;
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.28em;
+  color:rgba(212,203,186,.35);
+  opacity:0; transition:opacity .4s;
+}
+.case-hint.on{ opacity:1; animation:krFade 3s ease-in-out infinite; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   06b. [4] DOSSIER 자리 (캐릭터 소개 — 다음 안내에 맞춰 채웁니다)
    ══════════════════════════════════════════════════════════════════════════ */
 .stub{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:28px; }
 .stub-bg{ position:absolute; inset:0; }
@@ -786,7 +987,8 @@ body::before{
    07. 접근성 / 저사양 배려
    ══════════════════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce){
-  .tex-grain,.searchlight,.cast-sweep,.mote,.ember,.sway,.flag-sheen{ animation:none !important; }
+  .tex-grain,.searchlight,.cast-sweep,.mote,.ember,.sway,.flag-sheen,
+  .pager.alarm .pager-track,.radio-wrap.shake{ animation:none !important; }
   .ch{ animation:none !important; opacity:1 !important; }
   #mainLogo,.imglayer.shine img,.logo-wrap::before{ animation:none !important; }
 }
@@ -1067,23 +1269,231 @@ body::before{
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════════════
-       [3] CASE ─ 추리형 미니게임 (다음 지시에 맞춰 이 섹션을 채웁니다)
-       hook: App.goto('case') 로 진입. 배경은 district_seven.png 예약.
+       [3] CASE ─ 추리 오프닝 (Beom + WWII 수신기 + 메모 수수께끼)
+       Beom_stand.png 를 저장소 루트에 올리면 왼쪽 하단에 표시됩니다.
        ══════════════════════════════════════════════════════════════════════ -->
-  <section class="act" id="act-case" aria-label="사건 파일">
-    <div class="stub-bg"><img data-lazy="district_seven.png" alt=""></div>
-    <div class="stub">
-      <div class="dossier">
-        <span class="tb-rivet tl"></span><span class="tb-rivet tr"></span>
-        <span class="tb-rivet bl"></span><span class="tb-rivet br"></span>
-        <p class="kicker">CASE FILE — 01</p>
-        <h2>SECTOR SEVEN</h2>
-        <p>기록은 여기서 끊긴다.<br>다음 브리핑이 도착하는 대로 이어 붙일 것.</p>
-        <span class="stamp">AWAITING BRIEFING</span>
+  <section class="act" id="act-case" aria-label="수신실">
+    <div class="case-bg"><img data-lazy="district_seven.png" alt=""></div>
+
+    <!-- 아날로그 페이저 전광판 -->
+    <div class="pager" id="pager" aria-live="polite">
+      <div class="pager-glass">
+        <div class="pager-track" id="pagerTrack">STANDBY · SECTOR 7 · FREQ 7.40 MC</div>
       </div>
     </div>
-    <button class="hud-btn stub-back" type="button" data-goto="dossier">CHARACTERS ▸</button>
-    <div class="tex tex-scan"></div><div class="tex tex-vig"></div><div class="tex tex-grain"></div>
+
+    <!-- 왼쪽 상단 작은 메모 -->
+    <div class="memo" id="memo" aria-hidden="true">
+      <svg viewBox="0 0 58 70" aria-hidden="true">
+        <path d="M4 2 H50 L54 8 V66 H4 Z" fill="#e4d4b0"/>
+        <path d="M50 2 V8 H54 Z" fill="#c9b68a"/>
+        <rect x="10" y="-1" width="28" height="8" fill="rgba(200,167,92,.45)" transform="rotate(-4 24 3)"/>
+        <path d="M10 18 H44 M10 26 H40 M10 34 H42 M10 42 H36" stroke="#5a4a30" stroke-width="1.2" opacity=".45"/>
+        <circle cx="49" cy="60" r="2.2" fill="#8f3f3f" opacity=".55"/>
+      </svg>
+    </div>
+
+    <!-- 확대된 메모 (수수께끼) -->
+    <div class="memo-expand" id="memoExpand">
+      <div class="memo-sheet">
+        <div class="memo-rule"></div>
+        <p class="riddle" id="riddleText"></p>
+        <div class="memo-actions">
+          <p class="memo-foot">— unsigned · sector 7</p>
+          <button class="memo-close" id="memoClose" type="button">조작하기 ▸</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WWII 필드 수신기 (SVG) -->
+    <div class="radio-wrap locked" id="radioWrap">
+      <svg class="radio" id="radio" viewBox="0 0 360 300" role="group" aria-label="야전 수신기">
+        <defs>
+          <linearGradient id="rgChassis" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3a3f46"/><stop offset=".45" stop-color="#23282f"/><stop offset="1" stop-color="#12151a"/>
+          </linearGradient>
+          <linearGradient id="rgFace" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2c3138"/><stop offset="1" stop-color="#181c22"/>
+          </linearGradient>
+          <linearGradient id="rgDial" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#d8c9a0"/><stop offset=".55" stop-color="#b89a55"/><stop offset="1" stop-color="#6e5524"/>
+          </linearGradient>
+          <radialGradient id="rgKnob" cx=".35" cy=".3" r=".7">
+            <stop offset="0" stop-color="#c9c2b4"/><stop offset=".55" stop-color="#6a655c"/><stop offset="1" stop-color="#2a2824"/>
+          </radialGradient>
+          <pattern id="rgMesh" width="4" height="4" patternUnits="userSpaceOnUse">
+            <path d="M0 0 L4 4 M4 0 L0 4" stroke="#0a0c10" stroke-width=".6" opacity=".55"/>
+          </pattern>
+        </defs>
+
+        <!-- 안테나 -->
+        <path d="M48 38 L48 10 M48 10 L62 4" fill="none" stroke="#6a727c" stroke-width="2"/>
+        <circle cx="48" cy="10" r="2.5" fill="#8a929c"/>
+
+        <!-- 섀시 -->
+        <rect x="18" y="38" width="324" height="246" rx="6" fill="url(#rgChassis)" stroke="#c8a75c" stroke-width="1.2" opacity=".95"/>
+        <rect x="28" y="48" width="304" height="226" rx="3" fill="url(#rgFace)"/>
+        <!-- 리벳 -->
+        <g fill="#7a818a">
+          <circle cx="34" cy="54" r="2"/><circle cx="326" cy="54" r="2"/>
+          <circle cx="34" cy="268" r="2"/><circle cx="326" cy="268" r="2"/>
+        </g>
+        <!-- 명판 -->
+        <rect x="118" y="54" width="124" height="16" fill="#1a1d22" stroke="#c8a75c" stroke-width=".6"/>
+        <text x="180" y="65" text-anchor="middle" fill="#e7d8ac" font-size="7.5" font-family="Oswald,sans-serif" letter-spacing="2">TORN.E.b  ·  NW-7</text>
+
+        <!-- 스피커 그릴 -->
+        <rect x="40" y="78" width="78" height="78" rx="2" fill="#0e1014" stroke="#5a616a" stroke-width="1"/>
+        <rect x="44" y="82" width="70" height="70" fill="url(#rgMesh)"/>
+        <circle cx="79" cy="117" r="10" fill="none" stroke="#c8a75c" stroke-width=".8" opacity=".5"/>
+
+        <!-- 대형 튜닝 다이얼 -->
+        <circle cx="200" cy="118" r="42" fill="#12151a" stroke="#c8a75c" stroke-width="1.4"/>
+        <circle cx="200" cy="118" r="34" fill="url(#rgDial)"/>
+        <g stroke="#2a2210" stroke-width=".7">
+          <line x1="200" y1="88" x2="200" y2="94"/><line x1="200" y1="142" x2="200" y2="148"/>
+          <line x1="170" y1="118" x2="176" y2="118"/><line x1="224" y1="118" x2="230" y2="118"/>
+        </g>
+        <line x1="200" y1="118" x2="214" y2="98" stroke="#1a1408" stroke-width="2"/>
+        <circle cx="200" cy="118" r="5" fill="#1a1408"/>
+        <text x="200" y="172" text-anchor="middle" fill="#9a9384" font-size="6" font-family="Share Tech Mono,monospace" letter-spacing="1">MAIN TUNING</text>
+
+        <!-- 소형 버니어 다이얼 -->
+        <circle cx="280" cy="100" r="22" fill="#12151a" stroke="#8a929c" stroke-width="1"/>
+        <circle cx="280" cy="100" r="16" fill="url(#rgKnob)"/>
+        <line x1="280" y1="100" x2="288" y2="88" stroke="#e7d8ac" stroke-width="1.5"/>
+        <text x="280" y="132" text-anchor="middle" fill="#9a9384" font-size="5.5" font-family="Share Tech Mono,monospace">BAND</text>
+
+        <!-- 토글 스위치 2개 -->
+        <g transform="translate(262 148)">
+          <rect x="0" y="0" width="18" height="28" rx="2" fill="#1a1d22" stroke="#5a616a"/>
+          <rect x="3" y="3" width="12" height="10" fill="#c8a75c"/>
+          <text x="9" y="40" text-anchor="middle" fill="#9a9384" font-size="5" font-family="Share Tech Mono,monospace">PWR</text>
+        </g>
+        <g transform="translate(292 148)">
+          <rect x="0" y="0" width="18" height="28" rx="2" fill="#1a1d22" stroke="#5a616a"/>
+          <rect x="3" y="14" width="12" height="10" fill="#46617b"/>
+          <text x="9" y="40" text-anchor="middle" fill="#9a9384" font-size="5" font-family="Share Tech Mono,monospace">TX</text>
+        </g>
+
+        <!-- 색상 버튼 열 -->
+        <g aria-label="색상">
+          <g class="hit" data-key="color-red" tabindex="0" role="button" aria-label="적색">
+            <circle class="keycap" cx="52" cy="188" r="12" fill="#6a2e2e" stroke="#c8a75c" stroke-width=".8"/>
+            <circle cx="52" cy="188" r="7" fill="#8f3f3f"/>
+          </g>
+          <g class="hit" data-key="color-blue" tabindex="0" role="button" aria-label="청색">
+            <circle class="keycap" cx="84" cy="188" r="12" fill="#2a3a48" stroke="#c8a75c" stroke-width=".8"/>
+            <circle cx="84" cy="188" r="7" fill="#46617b"/>
+          </g>
+          <g class="hit" data-key="color-gold" tabindex="0" role="button" aria-label="금색">
+            <circle class="keycap" cx="116" cy="188" r="12" fill="#4a3e22" stroke="#c8a75c" stroke-width=".8"/>
+            <circle cx="116" cy="188" r="7" fill="#c8a75c"/>
+          </g>
+          <g class="hit" data-key="color-black" tabindex="0" role="button" aria-label="흑색">
+            <circle class="keycap" cx="148" cy="188" r="12" fill="#1a1d22" stroke="#c8a75c" stroke-width=".8"/>
+            <circle cx="148" cy="188" r="7" fill="#0a0c10"/>
+          </g>
+        </g>
+
+        <!-- 모양 버튼 -->
+        <g aria-label="모양">
+          <g class="hit" data-key="shape-circle" tabindex="0" role="button" aria-label="원">
+            <rect class="keycap" x="176" y="176" width="28" height="24" rx="2" fill="#2a2e34" stroke="#6a727c"/>
+            <circle cx="190" cy="188" r="7" fill="none" stroke="#e7d8ac" stroke-width="1.4"/>
+          </g>
+          <g class="hit" data-key="shape-triangle" tabindex="0" role="button" aria-label="삼각">
+            <rect class="keycap" x="208" y="176" width="28" height="24" rx="2" fill="#2a2e34" stroke="#6a727c"/>
+            <path d="M222 181 L229 195 L215 195 Z" fill="none" stroke="#e7d8ac" stroke-width="1.4"/>
+          </g>
+          <g class="hit" data-key="shape-square" tabindex="0" role="button" aria-label="사각">
+            <rect class="keycap" x="240" y="176" width="28" height="24" rx="2" fill="#2a2e34" stroke="#6a727c"/>
+            <rect x="247" y="182" width="14" height="12" fill="none" stroke="#e7d8ac" stroke-width="1.4"/>
+          </g>
+          <g class="hit" data-key="shape-diamond" tabindex="0" role="button" aria-label="마름모">
+            <rect class="keycap" x="272" y="176" width="28" height="24" rx="2" fill="#2a2e34" stroke="#6a727c"/>
+            <path d="M286 181 L293 188 L286 195 L279 188 Z" fill="none" stroke="#c8a75c" stroke-width="1.5"/>
+          </g>
+        </g>
+
+        <!-- 이니셜 버튼 -->
+        <g aria-label="이니셜" font-family="Oswald,sans-serif" font-size="9" fill="#e7d8ac">
+          <g class="hit" data-key="letter-B" tabindex="0" role="button" aria-label="B">
+            <rect class="keycap" x="40" y="214" width="26" height="22" rx="2" fill="#252930" stroke="#8a6c2e"/>
+            <text x="53" y="229" text-anchor="middle">B</text>
+          </g>
+          <g class="hit" data-key="letter-C" tabindex="0" role="button" aria-label="C">
+            <rect class="keycap" x="70" y="214" width="26" height="22" rx="2" fill="#252930" stroke="#8a6c2e"/>
+            <text x="83" y="229" text-anchor="middle">C</text>
+          </g>
+          <g class="hit" data-key="letter-E" tabindex="0" role="button" aria-label="E">
+            <rect class="keycap" x="100" y="214" width="26" height="22" rx="2" fill="#252930" stroke="#8a6c2e"/>
+            <text x="113" y="229" text-anchor="middle">E</text>
+          </g>
+          <g class="hit" data-key="letter-N" tabindex="0" role="button" aria-label="N">
+            <rect class="keycap" x="130" y="214" width="26" height="22" rx="2" fill="#252930" stroke="#8a6c2e"/>
+            <text x="143" y="229" text-anchor="middle">N</text>
+          </g>
+          <g class="hit" data-key="letter-W" tabindex="0" role="button" aria-label="W">
+            <rect class="keycap" x="160" y="214" width="26" height="22" rx="2" fill="#252930" stroke="#8a6c2e"/>
+            <text x="173" y="229" text-anchor="middle">W</text>
+          </g>
+        </g>
+
+        <!-- 숫자 버튼 -->
+        <g aria-label="숫자" font-family="Share Tech Mono,monospace" font-size="9" fill="#d4cbba">
+          <g class="hit" data-key="num-1" tabindex="0" role="button" aria-label="1">
+            <rect class="keycap" x="200" y="214" width="24" height="22" rx="2" fill="#1e2228" stroke="#5a616a"/><text x="212" y="229" text-anchor="middle">1</text>
+          </g>
+          <g class="hit" data-key="num-2" tabindex="0" role="button" aria-label="2">
+            <rect class="keycap" x="228" y="214" width="24" height="22" rx="2" fill="#1e2228" stroke="#5a616a"/><text x="240" y="229" text-anchor="middle">2</text>
+          </g>
+          <g class="hit" data-key="num-3" tabindex="0" role="button" aria-label="3">
+            <rect class="keycap" x="256" y="214" width="24" height="22" rx="2" fill="#1e2228" stroke="#5a616a"/><text x="268" y="229" text-anchor="middle">3</text>
+          </g>
+          <g class="hit" data-key="num-4" tabindex="0" role="button" aria-label="4">
+            <rect class="keycap" x="284" y="214" width="24" height="22" rx="2" fill="#1e2228" stroke="#5a616a"/><text x="296" y="229" text-anchor="middle">4</text>
+          </g>
+          <g class="hit" data-key="num-5" tabindex="0" role="button" aria-label="5">
+            <rect class="keycap" x="312" y="214" width="24" height="22" rx="2" fill="#1e2228" stroke="#5a616a"/><text x="324" y="229" text-anchor="middle">5</text>
+          </g>
+        </g>
+
+        <!-- 하단 계기 램프 -->
+        <g>
+          <rect x="40" y="248" width="280" height="16" fill="#0e1014" stroke="#3a4048"/>
+          <circle cx="56" cy="256" r="3.5" fill="#2a4a2a"/>
+          <circle cx="72" cy="256" r="3.5" fill="#4a2a2a"/>
+          <text x="180" y="260" text-anchor="middle" fill="#6a727c" font-size="6" font-family="Share Tech Mono,monospace" letter-spacing="1.5">FIELD SET  ·  CINDER UNIT ISSUE</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Beom 스탠딩 (파일: Beom_stand.png) -->
+    <div class="beom-stand" id="beomStand">
+      <img data-lazy="Beom_stand.png" alt="Beom — Beom_stand.png">
+    </div>
+
+    <!-- Beom 대사 -->
+    <div class="case-box" id="caseBox">
+      <div class="tb-plate">
+        <span class="tb-rivet tl"></span><span class="tb-rivet tr"></span>
+        <span class="tb-rivet bl"></span><span class="tb-rivet br"></span>
+        <div class="tb-head">
+          <span>BEOM</span><span class="ln"></span><span id="caseLineIdx">1 / 4</span>
+        </div>
+        <p class="tb-text" id="caseText"></p>
+        <svg class="tb-next" viewBox="0 0 13 8" aria-hidden="true">
+          <path d="M1 1 L6.5 6 L12 1" fill="none" stroke="#c8a75c" stroke-width="1.4"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="case-hint" id="caseHint">수신기를 조작하라</div>
+
+    <div class="tex tex-scan"></div>
+    <div class="tex tex-vig"></div>
+    <div class="tex tex-grain"></div>
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════════════
@@ -1138,6 +1548,38 @@ body::before{
     { "id": "claude", "name": "Claude", "anime": "Claude_anime.png" }
   ],
   "castHoldMs": 2000,
+  "case": {
+    "beomStand": "Beom_stand.png",
+    "lines": [
+      "You're late. Hands off the set.",
+      "Sector Seven's been coughing the same ghost frequency since the blackout.",
+      "There's a note on the chassis. Whoever wrote it wasn't joking.",
+      "Solve it. One wrong call and every floor above us lights up."
+    ],
+    "riddles": [
+      {
+        "id": "ash-blue",
+        "prompt": "잿더미가 된 대륙에서\n유일하게 본디 색을 잃지 않은 것.\n그것은 불도, 피도, 금도 아니다.\n수신기 위 — 그 색을 눌러라.",
+        "answer": ["color-blue"]
+      },
+      {
+        "id": "clock-empire",
+        "prompt": "시계바늘을 따라가면\n북부의 섬 → 동부의 공장 →\n제국의 검은 심장 → 서부의 거리.\n만악의 근원이 앉은 자리는 몇 번째인가.",
+        "answer": ["num-3"]
+      },
+      {
+        "id": "gold-diamond",
+        "prompt": "네 모서리는 있으나 상자는 아니고,\n창처럼 뾰족하나 창은 아니며,\n오직 금빛으로만 새겨진 그 형태.\n수신기에서 나를 찾아 눌러라.",
+        "answer": ["shape-diamond"]
+      },
+      {
+        "id": "first-initial",
+        "prompt": "다섯 이름의 잿더미 중에서\n알파벳이 가장 먼저 부르는 이의 머리글자.\n성은 버리고 이름만 보라.",
+        "answer": ["letter-B"]
+      }
+    ],
+    "alarmText": "Eindringling Alarm! Eindringling Alarm!"
+  },
   "scenes": [
     { "n":  0, "layout": "title", "image": null,
       "text": "※ 이 이야기는 픽션이고 현실과 전~혀 상관없지만 어떠한 현실이 떠오를 수도 있다." },
@@ -1624,7 +2066,215 @@ body::before{
     clearCast();
     hideAllText();
     goto('case');
+    startCase();
   }
+
+  /* ─── [3] CASE : Beom 대사 → 메모 수수께끼 → 수신기 조작 ─────────────── */
+  var caseState = {
+    phase: 'idle',   // idle | talk | riddle | alarm | done
+    line: 0,
+    riddle: null,
+    progress: [],
+    typingUntil: 0,
+    started: false
+  };
+
+  var caseEl = {
+    box: $('caseBox'), text: $('caseText'), lineIdx: $('caseLineIdx'),
+    beom: $('beomStand'), memo: $('memo'), expand: $('memoExpand'),
+    riddleText: $('riddleText'), close: $('memoClose'),
+    radio: $('radioWrap'), pager: $('pager'), track: $('pagerTrack'),
+    hint: $('caseHint'), act: $('act-case')
+  };
+
+  function startCase(force) {
+    // 대사/수수께끼 도중 중복 진입만 막고, 알람·종료 후에는 다시 열 수 있게
+    if (!force && caseState.started && (caseState.phase === 'talk' || caseState.phase === 'riddle')) return;
+    caseState.started = true;
+    caseState.phase = 'talk';
+    caseState.line = 0;
+    caseState.progress = [];
+    if (alarmTimer) { clearTimeout(alarmTimer); alarmTimer = null; }
+
+    // 방문마다 수수께끼 하나 뽑기
+    var pool = (DATA.case && DATA.case.riddles) || [];
+    caseState.riddle = pool[Math.floor(Math.random() * pool.length)] || null;
+
+    caseEl.pager.classList.remove('alarm', 'fail');
+    caseEl.track.style.animation = 'none';
+    caseEl.track.textContent = 'STANDBY · SECTOR 7 · FREQ 7.40 MC';
+    caseEl.radio.classList.add('locked');
+    caseEl.radio.classList.remove('live', 'shake');
+    caseEl.expand.classList.remove('on');
+    caseEl.memo.classList.remove('is-hidden');
+    caseEl.hint.classList.remove('on');
+    caseEl.beom.classList.add('on');
+    wakeLazy(caseEl.beom);
+
+    // Beom 스탠딩이 없으면 안내 카드로
+    var bim = caseEl.beom.querySelector('img[data-lazy], img[data-file], img');
+    if (bim && !bim.getAttribute('src') && bim.getAttribute('data-lazy')) {
+      /* wakeLazy가 처리할 것 */
+    }
+
+    showCaseLine(0);
+  }
+
+  function showCaseLine(i) {
+    var lines = (DATA.case && DATA.case.lines) || [];
+    if (i >= lines.length) { revealMemo(); return; }
+    caseState.line = i;
+    caseEl.lineIdx.textContent = (i + 1) + ' / ' + lines.length;
+    var n = typeInto(caseEl.text, lines[i]);
+    caseEl.box.classList.add('on');
+    caseEl.box.classList.remove('ready');
+    caseState.typingUntil = (n && !reduce) ? Date.now() + n * 26 + 280 : 0;
+    setTimeout(function () {
+      if (caseState.line === i) caseEl.box.classList.add('ready');
+    }, Math.max(0, caseState.typingUntil - Date.now()));
+  }
+
+  function advanceCaseTalk() {
+    if (caseState.phase !== 'talk') return;
+    if (Date.now() < caseState.typingUntil) {
+      finishType(caseEl.text);
+      caseState.typingUntil = 0;
+      caseEl.box.classList.add('ready');
+      return;
+    }
+    showCaseLine(caseState.line + 1);
+  }
+
+  function revealMemo() {
+    caseState.phase = 'riddle';
+    caseState.memoLockUntil = Date.now() + 900; // 펼쳐지는 동안 탭에 바로 접히지 않게
+    caseEl.box.classList.remove('on');
+    if (caseState.riddle) {
+      caseEl.riddleText.textContent = caseState.riddle.prompt;
+    }
+    // 작은 메모가 확대 원점으로 흡수된 뒤 시트 등장
+    caseEl.memo.classList.add('is-hidden');
+    setTimeout(function () {
+      caseEl.expand.classList.add('on');
+      caseEl.radio.classList.remove('locked');
+      caseEl.radio.classList.add('live');
+      caseEl.hint.classList.add('on');
+      caseEl.track.textContent = 'DECODE REQUIRED · AWAITING INPUT';
+    }, 280);
+  }
+
+  function closeMemoSheet(force) {
+    if (!force && Date.now() < (caseState.memoLockUntil || 0)) return;
+    caseEl.expand.classList.remove('on');
+    // 다시 펼칠 수 있도록 작은 메모를 왼쪽 위에 되돌린다
+    caseEl.memo.classList.remove('is-hidden');
+    caseEl.memo.style.pointerEvents = 'auto';
+    caseEl.memo.style.cursor = 'pointer';
+  }
+
+  function onRadioKey(key) {
+    if (caseState.phase !== 'riddle' || !caseState.riddle) return;
+    var need = caseState.riddle.answer || [];
+    var next = need[caseState.progress.length];
+
+    if (key === next) {
+      caseState.progress.push(key);
+      // 키 점등
+      var hit = caseEl.radio.querySelector('.hit[data-key="' + key + '"]');
+      if (hit) hit.classList.add('is-on');
+      caseEl.track.textContent = 'ACK · ' + key.toUpperCase().replace(/-/g, ' ');
+      caseEl.pager.classList.remove('fail');
+
+      if (caseState.progress.length >= need.length) {
+        triggerAlarm();
+      }
+    } else {
+      // 오답 : 진행 리셋 + 흔들림
+      caseState.progress = [];
+      Array.prototype.forEach.call(caseEl.radio.querySelectorAll('.hit.is-on'), function (h) {
+        h.classList.remove('is-on');
+      });
+      var bad = caseEl.radio.querySelector('.hit[data-key="' + key + '"]');
+      if (bad) {
+        bad.classList.remove('is-wrong');
+        void bad.offsetWidth;
+        bad.classList.add('is-wrong');
+      }
+      caseEl.radio.classList.remove('shake');
+      void caseEl.radio.offsetWidth;
+      caseEl.radio.classList.add('shake');
+      caseEl.pager.classList.add('fail');
+      caseEl.track.textContent = 'FEHLER · SEQUENCE RESET';
+      setTimeout(function () {
+        if (caseState.phase === 'riddle') {
+          caseEl.pager.classList.remove('fail');
+          caseEl.track.textContent = 'DECODE REQUIRED · AWAITING INPUT';
+        }
+      }, 1100);
+    }
+  }
+
+  var alarmTimer = null;
+  function triggerAlarm() {
+    caseState.phase = 'alarm';
+    caseEl.expand.classList.remove('on');
+    caseEl.hint.classList.remove('on');
+    caseEl.radio.classList.remove('live');
+    caseEl.radio.classList.add('locked');
+
+    var msg = (DATA.case && DATA.case.alarmText) || 'Eindringling Alarm! Eindringling Alarm!';
+    // 끊김 없는 루프를 위해 동일 문구를 두 번 붙인다 (CSS가 -50% 만큼 민다)
+    var unit = msg + '   ···   ';
+    caseEl.track.textContent = unit + unit;
+    caseEl.pager.classList.remove('fail');
+    caseEl.pager.classList.add('alarm');
+    // 애니메이션 재시작
+    caseEl.track.style.animation = 'none';
+    void caseEl.track.offsetWidth;
+    caseEl.track.style.animation = '';
+
+    if (alarmTimer) clearTimeout(alarmTimer);
+    alarmTimer = setTimeout(function () {
+      caseState.phase = 'done';
+      goto('dossier');
+    }, 4200);
+  }
+
+  // 수신기 버튼
+  caseEl.radio.addEventListener('pointerdown', function (e) {
+    var hit = e.target.closest('.hit');
+    if (!hit || !caseEl.radio.classList.contains('live')) return;
+    e.stopPropagation();
+    onRadioKey(hit.getAttribute('data-key'));
+  });
+  caseEl.radio.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var hit = e.target.closest('.hit');
+    if (!hit) return;
+    e.preventDefault();
+    onRadioKey(hit.getAttribute('data-key'));
+  });
+
+  // 대사 진행 (박스 탭 / 화면 탭)
+  caseEl.act.addEventListener('pointerdown', function (e) {
+    if (e.target.closest('.hit') || e.target.closest('.memo-close')) return;
+    if (caseState.phase === 'talk') {
+      e.stopPropagation();
+      advanceCaseTalk();
+    } else if (caseState.phase === 'riddle' && caseEl.expand.classList.contains('on')) {
+      // 메모 시트 밖(어두운 배경)을 누르면 접고 수신기에 집중
+      if (!e.target.closest('.memo-sheet')) closeMemoSheet();
+    }
+  });
+  caseEl.close.addEventListener('click', function (e) {
+    e.stopPropagation();
+    closeMemoSheet(true);
+  });
+
+  // 메모를 다시 펼쳐 볼 수 있게 (수수께끼 단계)
+  caseEl.memo.addEventListener('click', function () {
+    if (caseState.phase === 'riddle') caseEl.expand.classList.add('on');
+  });
 
   /* ─── 오디오 ─────────────────────────────────────────────────────────── */
   var muted = false;
@@ -1681,6 +2331,7 @@ body::before{
       e.preventDefault();
       if (!started) { start(); return; }
       if (el.intro.classList.contains('is-active')) advance();
+      else if (caseEl.act.classList.contains('is-active') && caseState.phase === 'talk') advanceCaseTalk();
     }
   });
 
@@ -1701,7 +2352,22 @@ body::before{
   go = function (i) { origGo(i); preloadFrom(i + 1); };
 
   /* 외부 훅 : 다음 파트 붙일 때 사용 */
-  window.CINDER = { goto: goto, go: function (i) { goto('intro'); go(i); }, data: DATA };
+  window.CINDER = {
+    goto: goto,
+    go: function (i) { goto('intro'); go(i); },
+    startCase: startCase,
+    /* 테스트용 : 수수께끼 id 지정 후 즉시 수신기 단계로 */
+    forceRiddle: function (id) {
+      goto('case');
+      startCase(true);
+      if (id) {
+        var found = ((DATA.case && DATA.case.riddles) || []).filter(function (r) { return r.id === id; })[0];
+        if (found) caseState.riddle = found;
+      }
+      revealMemo();
+    },
+    data: DATA
+  };
 })();
 </script>
 </body>
