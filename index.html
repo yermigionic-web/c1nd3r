@@ -2810,7 +2810,7 @@ body::before{
     return [];
   }
 
-  function currentFile() {
+  function getDosFile() {
     var files = factionFiles(dosState.faction);
     return files[dosState.index] || null;
   }
@@ -2907,7 +2907,7 @@ body::before{
   }
 
   function renderDosFile() {
-    var p = currentFile();
+    var p = getDosFile();
     dosEl.scroll.innerHTML = '';
     if (!p) {
       var empty = document.createElement('p');
